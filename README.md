@@ -1,5 +1,7 @@
 # Earnly - Learn & Earn Blockchain Rewards
 
+![Earnly Banner](https://via.placeholder.com/1200x300?text=Earnly+Banner)
+
 ## Project Title
 Earnly - A Gamified Blockchain Learning Platform
 
@@ -21,6 +23,8 @@ Earnly's "learn-to-earn" model addresses these issues by integrating educational
 
 The platform features a comprehensive dashboard that tracks progress, displays earned rewards, shows course recommendations, and enables social learning through leaderboards. This approach creates multiple motivational drivers: the intrinsic value of education, the extrinsic value of token rewards, and the social aspect of community recognition and competition.
 
+![Platform Overview](https://via.placeholder.com/800x400?text=Platform+Overview)
+
 ## Tech Stack Used
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+), Bootstrap 5
 - **UI Components**: Bootstrap modals, cards, responsive grid system
@@ -33,6 +37,8 @@ The platform features a comprehensive dashboard that tracks progress, displays e
 - **Authentication**: JWT (JSON Web Token) based authentication
 - **Storage**: Browser LocalStorage for client-side persistence
 - **Blockchain Integration**: Aptos blockchain for token-based reward system (APT tokens)
+
+![Tech Stack](https://via.placeholder.com/800x400?text=Tech+Stack+Diagram)
 
 ## Project Structure
 The project is organized into the following key directories:
@@ -53,25 +59,35 @@ The project is organized into the following key directories:
 - Comprehensive user profiles with customizable information
 - Profile editing capabilities including photo uploads
 
+![User Management](https://via.placeholder.com/600x300?text=User+Management)
+
 #### 2. Course Management
 - Catalog of blockchain-focused courses with filtering capabilities
 - Course details pages with progress tracking
 - Module-based learning structure with different content types (video, text, quiz)
+
+![Course Management](https://via.placeholder.com/600x300?text=Course+Management)
 
 #### 3. Gamification Elements
 - Token rewards for completing courses and modules
 - Progress tracking with visual indicators
 - Leaderboards to promote healthy competition
 
+![Gamification Elements](https://via.placeholder.com/600x300?text=Gamification+Elements)
+
 #### 4. Wallet Integration
 - Native wallet functionality to store earned tokens
 - Transaction history for viewing reward earnings
 - Future transfer capabilities (planned)
 
+![Wallet Integration](https://via.placeholder.com/600x300?text=Wallet+Integration)
+
 #### 5. Dashboard
 - Personalized dashboard showing enrolled courses
 - Progress statistics and activity feed
 - Earnings summary and certificates earned
+
+![Dashboard Interface](https://via.placeholder.com/600x300?text=Dashboard+Interface)
 
 ### Architecture & Implementation
 
@@ -85,6 +101,8 @@ The application follows a modular architecture with separate components for:
 6. **Backend API**: Express.js routes handle data operations and user interactions
 7. **Blockchain Integration**: Aptos blockchain integration for managing token rewards
 
+![Architecture Diagram](https://via.placeholder.com/800x500?text=Application+Architecture)
+
 The frontend communicates with a backend API that manages user data, course content, progress tracking, and token rewards. The system uses RESTful endpoints for data exchange and JWT tokens for secure authentication.
 
 ### User Flow
@@ -95,6 +113,28 @@ The frontend communicates with a backend API that manages user data, course cont
 4. Upon completing modules or entire courses, users automatically earn token rewards
 5. Progress and earnings are tracked on the dashboard
 6. Users can participate in the community through leaderboards and eventually games
+
+![User Flow](https://via.placeholder.com/800x400?text=User+Flow+Diagram)
+
+### User Interface Highlights
+
+#### Home Page
+![Home Page](https://via.placeholder.com/600x300?text=Home+Page)
+
+#### Course Listing
+![Course Listing](https://via.placeholder.com/600x300?text=Course+Listing)
+
+#### Course Details
+![Course Details](https://via.placeholder.com/600x300?text=Course+Details)
+
+#### Learning Interface
+![Learning Interface](https://via.placeholder.com/600x300?text=Learning+Interface)
+
+#### Quiz Experience
+![Quiz Experience](https://via.placeholder.com/600x300?text=Quiz+Experience)
+
+#### Rewards Celebration
+![Rewards Celebration](https://via.placeholder.com/600x300?text=Rewards+Celebration)
 
 ### Setup and Installation
 
@@ -133,6 +173,8 @@ node server.js
 - Integration with major blockchain networks for wider token utility
 - Creator marketplace for user-generated educational content
 
+![Future Roadmap](https://via.placeholder.com/800x400?text=Future+Roadmap)
+
 ## Repository
 
-The project is available on GitHub: [Earnly-Learn-easy-Earn-easy](https://github.com/ABHI10092004/Earnly-Learn-easy-Earn-easy.git) 
+The project is available on GitHub: [Earnly-Learn-easy-Earn-easy](https://github.com/ABHI10092004/Earnly-Learn-easy-Earn-easy.git)
