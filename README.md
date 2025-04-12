@@ -3,7 +3,7 @@
 ![Earnly Banner](https://via.placeholder.com/1200x300?text=Earnly+Banner)
 
 ## Project Title
-Earnly - A Gamified Blockchain Learning Platform
+Earnly - A Blockchain Learning Platform For Learning and Earning
 
 ## Selected Domain
 Educational Technology (EdTech) with Blockchain Integration
