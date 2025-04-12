@@ -59,7 +59,8 @@ The project is organized into the following key directories:
 - Comprehensive user profiles with customizable information
 - Profile editing capabilities including photo uploads
 
-![User Management](https://via.placeholder.com/600x300?text=User+Management)
+![image](https://github.com/user-attachments/assets/9be0c38a-cc8a-49c7-b17d-e9ed3f743d64)
+
 
 #### 2. Course Management
 - Catalog of blockchain-focused courses with filtering capabilities
