@@ -83,9 +83,11 @@ The project is organized into the following key directories:
 #### 4. Wallet Integration
 - Native wallet functionality to store earned tokens
 - Transaction history for viewing reward earnings
-- Future transfer capabilities (planned)
+- Amount will be directly added to petra Wallet
 
 ![image](https://github.com/user-attachments/assets/bc46fe72-fc86-48b1-a7a0-410fe431fbbf)
+
+![image](https://github.com/user-attachments/assets/9dfc905d-a86b-409d-9987-af3da16bec61)
 
 
 #### 5. Dashboard
@@ -94,6 +96,53 @@ The project is organized into the following key directories:
 - Earnings summary and certificates earned
 
 ![image](https://github.com/user-attachments/assets/8c0c4340-e265-4fd4-b2a3-cededfc59aff)
+
+#### 6. Admin Panel
+The platform includes a comprehensive admin panel for platform management with the following features:
+
+- **Admin Dashboard**
+  - Real-time analytics showing user growth, activity, and engagement metrics
+  - Key statistics including total users, courses, quizzes, and token distributions
+  - Visual charts for user acquisition and platform activity
+  - Recent user activity monitoring
+ 
+    ![image](https://github.com/user-attachments/assets/d26f3921-139c-4772-bc47-c45438fd9e17)
+
+
+- **User Management System**
+  - Complete user database with search and filter functionality
+  - User profile editing and wallet balance management
+  - User activity tracking and course enrollment monitoring
+  - Role-based access control (admin vs regular users)
+ 
+![image](https://github.com/user-attachments/assets/c6c70681-f25a-4cc6-a82f-bca474760056)
+
+
+- **Course Management**
+  - Course creation and editing interface
+  - Module builder with support for different content types
+  - Ability to set reward amounts for course completion
+  - Course statistics including enrollment and completion rates
+ 
+    ![image](https://github.com/user-attachments/assets/0979a207-c7ea-4a74-98ec-5f4ed12728f9)
+
+- **Quiz Management**
+  - Comprehensive quiz builder with multiple question types
+  - Quiz settings including time limits and passing scores
+  - Reward configuration for quiz completion
+  - Performance analytics for questions and completion rates
+ 
+    ![image](https://github.com/user-attachments/assets/7b0267c9-8887-4097-b05d-4d255b6549f7)
+
+
+- **Transaction Monitoring**
+  - Complete transaction history across the platform
+  - Filtering by transaction type, date, and user
+  - Visual representation of token distribution over time
+  - Transaction details with status tracking
+
+![image](https://github.com/user-attachments/assets/c8d153f4-d8d4-41ea-bc69-79b2464670f3)
+
 
 ### Architecture & Implementation
 
