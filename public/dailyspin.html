@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Spin - Win Tokens</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --primary: #6B73FF;
+            --primary-dark: #4B53DF;
+            --secondary: #FF7C7C;
+            --tertiary: #6EDFF5;
+            --quaternary: #F9C270;
+            --dark: #1a1a1a;
+            --light: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .spin-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .spin-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .spin-title {
+            color: var(--quaternary);
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .spin-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+
+        .spin-day-counter {
+            background: linear-gradient(135deg, var(--quaternary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            display: inline-block;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(249, 194, 112, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .wheel-container {
+            width: 320px;
+            height: 320px;
+            margin: 0 auto 30px;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            transition: transform 5s cubic-bezier(0.17, 0.67, 0.16, 0.99);
+            box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.8), 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: rotate(0deg);
+            cursor: pointer;
+            background-color: #2c3e50;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .wheel-inner {
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            border-radius: 50%;
+            top: 5%;
+            left: 5%;
+            background: #34495e;
+            z-index: 2;
+        }
+
+        .wheel-section {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+            left: 0;
+            top: 0;
+        }
+
+        /* 6 sections for the wheel with improved design */
+        .section-1 {
+            background: var(--primary);
+            transform: rotate(0deg);
+            z-index: 3;
+        }
+
+        .section-2 {
+            background: var(--secondary);
+            transform: rotate(60deg);
+            z-index: 4;
+        }
+
+        .section-3 {
+            background: var(--tertiary);
+            transform: rotate(120deg);
+            z-index: 5;
+        }
+
+        .section-4 {
+            background: var(--quaternary);
+            transform: rotate(180deg);
+            z-index: 6;
+        }
+
+        .section-5 {
+            background: #97D8C4;
+            transform: rotate(240deg);
+            z-index: 7;
+        }
+
+        .section-6 {
+            background: #A084DC;
+            transform: rotate(300deg);
+            z-index: 8;
+        }
+
+        .wheel-center {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(0, 0, 0, 0.1);
+            border: 5px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wheel-center::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background: var(--quaternary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .wheel-prize {
+            position: absolute;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            transform-origin: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            z-index: 30;
+            filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.3));
+        }
+
+        .wheel-pointer svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .wheel-divider {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 50%;
+            height: 2px;
+            background-color: rgba(255, 255, 255, 0.3);
+            transform-origin: left;
+            z-index: 15;
+        }
+
+        .divider-1 { transform: rotate(30deg) translateY(-50%); }
+        .divider-2 { transform: rotate(90deg) translateY(-50%); }
+        .divider-3 { transform: rotate(150deg) translateY(-50%); }
+        .divider-4 { transform: rotate(210deg) translateY(-50%); }
+        .divider-5 { transform: rotate(270deg) translateY(-50%); }
+        .divider-6 { transform: rotate(330deg) translateY(-50%); }
+
+        /* Improved animation for wheel spinning */
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            20% {
+                transform: rotate(var(--spin-deg) * 0.6);
+            }
+            30% {
+                transform: rotate(var(--spin-deg) * 0.9);
+            }
+            40% {
+                transform: rotate(var(--spin-deg) * 0.8);
+            }
+            50% {
+                transform: rotate(var(--spin-deg) * 0.95);
+            }
+            60% {
+                transform: rotate(var(--spin-deg) * 0.92);
+            }
+            70% {
+                transform: rotate(var(--spin-deg) * 0.98);
+            }
+            80% {
+                transform: rotate(var(--spin-deg) * 0.97);
+            }
+            100% {
+                transform: rotate(var(--spin-deg));
+            }
+        }
+
+        .spinning {
+            animation: spin 5s cubic-bezier(0.17, 0.67, 0.16, 0.99) forwards;
+        }
+
+        .spin-button {
+            background: linear-gradient(135deg, var(--quaternary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            margin: 30px auto 0;
+            display: block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(249, 194, 112, 0.3);
+        }
+
+        .spin-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(249, 194, 112, 0.4);
+        }
+
+        .spin-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-container {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            display: none;
+        }
+
+        .result-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--quaternary);
+        }
+
+        .result-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .result-details {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .reward-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .reward-token {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary);
+            border-radius: 0;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(300px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .next-spin-info {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f3f3f3;
+            border-radius: 10px;
+        }
+
+        .countdown {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .streak-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 5px;
+        }
+
+        .streak-day {
+            width: 30px;
+            height: 30px;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        .streak-day.active {
+            background-color: var(--quaternary);
+            color: white;
+        }
+
+        /* Animation for showing result container */
+        @keyframes showResult {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-container.show {
+            display: block;
+            animation: showResult 0.5s ease forwards;
+        }
+
+        /* Toast notification style */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 10px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left: 5px solid #28a745;
+        }
+
+        .toast.error {
+            border-left: 5px solid #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div id="nav-placeholder"></div>
+
+    <div class="container spin-container">
+        <div class="spin-header">
+            <h1 class="spin-title">Daily Spin</h1>
+            <p class="spin-subtitle">Spin the wheel once every 24 hours for a chance to win tokens! The longer your streak, the better your rewards.</p>
+            <div class="spin-day-counter">
+                <i class="fas fa-calendar-check me-2"></i> Current Streak: <span id="streakCount">0</span> days
+            </div>
+        </div>
+
+        <div class="wheel-container">
+            <div class="wheel-pointer">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 3L4 15H20L12 3Z" fill="#F9C270" stroke="#F9C270" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="wheel" id="wheel">
+                <div class="wheel-section section-1"></div>
+                <div class="wheel-section section-2"></div>
+                <div class="wheel-section section-3"></div>
+                <div class="wheel-section section-4"></div>
+                <div class="wheel-section section-5"></div>
+                <div class="wheel-section section-6"></div>
+                
+                <!-- Dividers -->
+                <div class="wheel-divider divider-1"></div>
+                <div class="wheel-divider divider-2"></div>
+                <div class="wheel-divider divider-3"></div>
+                <div class="wheel-divider divider-4"></div>
+                <div class="wheel-divider divider-5"></div>
+                <div class="wheel-divider divider-6"></div>
+                
+                <!-- Prize labels -->
+                <div class="wheel-prize" style="top: 25%; left: 75%;">5</div>
+                <div class="wheel-prize" style="top: 55%; left: 85%;">20</div>
+                <div class="wheel-prize" style="top: 75%; left: 55%;">50</div>
+                <div class="wheel-prize" style="top: 75%; left: 25%;">10</div>
+                <div class="wheel-prize" style="top: 45%; left: 15%;">100</div>
+                <div class="wheel-prize" style="top: 25%; left: 45%;">30</div>
+                
+                <div class="wheel-center"></div>
+            </div>
+        </div>
+
+        <button id="spinButton" class="spin-button">
+            <i class="fas fa-sync-alt me-2"></i> SPIN NOW
+        </button>
+
+        <div class="streak-container">
+            <div class="streak-day">1</div>
+            <div class="streak-day">2</div>
+            <div class="streak-day">3</div>
+            <div class="streak-day">4</div>
+            <div class="streak-day">5</div>
+            <div class="streak-day">6</div>
+            <div class="streak-day">7</div>
+        </div>
+
+        <div id="resultContainer" class="result-container">
+            <i class="fas fa-trophy result-icon"></i>
+            <h2 class="result-text">Congratulations!</h2>
+            <p class="result-details">You have won:</p>
+            <div class="reward-amount">
+                <img src="https://cryptologos.cc/logos/aptos-apt-logo.png" alt="Token" class="reward-token">
+                <span id="rewardAmount">0</span> Tokens
+            </div>
+            <div class="next-spin-info">
+                <p>Your next spin will be available in <span id="countdown" class="countdown">24:00:00</span></p>
+                <p>Come back tomorrow to continue your streak!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Load navigation -->
+    <script>
+        $(function() {
+            $("#nav-placeholder").load("nav.html", function() {
+                // After loading nav.html, load its JavaScript
+                $.getScript("/nav.js");
+            });
+        });
+    </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const wheel = document.getElementById('wheel');
+            const spinButton = document.getElementById('spinButton');
+            const resultContainer = document.getElementById('resultContainer');
+            const rewardAmount = document.getElementById('rewardAmount');
+            const streakCount = document.getElementById('streakCount');
+            const countdownEl = document.getElementById('countdown');
+            const streakDays = document.querySelectorAll('.streak-day');
+            const toastContainer = document.getElementById('toastContainer');
+            
+            // Predefined prizes in tokens (matching positions on wheel)
+            const prizes = [5, 20, 50, 10, 100, 30];
+            
+            // Initialize variables
+            let canSpin = true;
+            let spinDegree = 0;
+            let lastSpinDate = localStorage.getItem('lastSpinDate') || null;
+            let streak = parseInt(localStorage.getItem('spinStreak') || '0');
+            let nextSpinTime = localStorage.getItem('nextSpinTime') || null;
+            
+            // Update UI from saved data
+            updateStreakUI();
+            checkSpinAvailability();
+            startCountdown();
+            
+            // Spin button click handler
+            spinButton.addEventListener('click', function() {
+                if (!canSpin) {
+                    showToast('You need to wait until tomorrow for your next spin', 'error');
+                    return;
+                }
+                
+                // Disable button during spin
+                spinButton.disabled = true;
+                
+                // Get random prize
+                const randomPrize = getRandomPrize();
+                const prizeIndex = prizes.indexOf(randomPrize);
+                
+                // Calculate degree to stop at the prize
+                // Each section is 60 degrees, offset by 30 to point at center of section
+                // Add 3-5 full rotations for effect (1080-1800 degrees)
+                const minRotations = 3;
+                const maxRotations = 5;
+                const randomRotations = Math.floor(Math.random() * (maxRotations - minRotations + 1) + minRotations);
+                const sectionDegree = 60;
+                const sectionOffset = 30;
+                
+                // Calculate final rotation: 
+                // Random rotations + position of prize from bottom (0) + small random offset within section
+                const randomOffset = Math.random() * 20 - 10; // -10 to +10 degrees offset
+                spinDegree = randomRotations * 360 + (prizeIndex * sectionDegree) + sectionOffset + randomOffset;
+                
+                // Apply animation
+                wheel.style.setProperty('--spin-deg', spinDegree + 'deg');
+                wheel.classList.add('spinning');
+                
+                // After animation finishes
+                setTimeout(function() {
+                    // Show result
+                    rewardAmount.textContent = randomPrize;
+                    resultContainer.classList.add('show');
+                    
+                    // Create confetti effect
+                    createConfetti();
+                    
+                    // Update streak
+                    updateStreak();
+                    
+                    // Save last spin date and next available time (24 hours later)
+                    const now = new Date();
+                    const nextTime = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours later
+                    localStorage.setItem('lastSpinDate', now.toISOString());
+                    localStorage.setItem('nextSpinTime', nextTime.toISOString());
+                    
+                    // Save prize to user's wallet
+                    updateUserWallet(randomPrize);
+                    
+                    // Update availability
+                    canSpin = false;
+                    
+                    // Start countdown
+                    startCountdown();
+                    
+                }, 5000); // Wait for animation to finish
+            });
+            
+            // Reset wheel animation after it completes
+            wheel.addEventListener('animationend', function() {
+                wheel.classList.remove('spinning');
+                wheel.style.transform = `rotate(${spinDegree}deg)`;
+            });
+            
+            // Function to get random prize with streak bonus
+            function getRandomPrize() {
+                let prizeWeights = [
+                    { prize: 5, weight: 40 },
+                    { prize: 10, weight: 30 },
+                    { prize: 20, weight: 15 },
+                    { prize: 30, weight: 10 },
+                    { prize: 50, weight: 4 },
+                    { prize: 100, weight: 1 }
+                ];
+                
+                // Apply streak bonus (increase chance of better prizes)
+                if (streak >= 3) {
+                    // Reduce weight of small prizes
+                    prizeWeights[0].weight -= Math.min(20, streak * 5);
+                    prizeWeights[1].weight -= Math.min(15, streak * 3);
+                    
+                    // Increase weight of better prizes
+                    prizeWeights[3].weight += Math.min(10, streak);
+                    prizeWeights[4].weight += Math.min(8, streak);
+                    prizeWeights[5].weight += Math.min(5, streak);
+                }
+                
+                // Make sure weights don't go below 1
+                prizeWeights = prizeWeights.map(pw => ({
+                    prize: pw.prize,
+                    weight: Math.max(1, pw.weight)
+                }));
+                
+                // Calculate total weight
+                const totalWeight = prizeWeights.reduce((sum, item) => sum + item.weight, 0);
+                
+                // Random number between 0 and totalWeight
+                let random = Math.random() * totalWeight;
+                
+                // Find the prize based on weights
+                for (let i = 0; i < prizeWeights.length; i++) {
+                    if (random < prizeWeights[i].weight) {
+                        return prizeWeights[i].prize;
+                    }
+                    random -= prizeWeights[i].weight;
+                }
+                
+                // Fallback (should never reach here)
+                return 5;
+            }
+            
+            // Update user's streak
+            function updateStreak() {
+                streak++;
+                localStorage.setItem('spinStreak', streak.toString());
+                updateStreakUI();
+            }
+            
+            // Update streak UI
+            function updateStreakUI() {
+                streakCount.textContent = streak;
+                
+                // Update streak days indicators
+                streakDays.forEach((day, index) => {
+                    if (index < streak) {
+                        day.classList.add('active');
+                    } else {
+                        day.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Check if spin is available based on last spin date
+            function checkSpinAvailability() {
+                if (!lastSpinDate || !nextSpinTime) {
+                    canSpin = true;
+                    return;
+                }
+                
+                const now = new Date();
+                const nextTime = new Date(nextSpinTime);
+                
+                if (now > nextTime) {
+                    canSpin = true;
+                    spinButton.disabled = false;
+                } else {
+                    canSpin = false;
+                    spinButton.disabled = true;
+                }
+            }
+            
+            // Start countdown to next available spin
+            function startCountdown() {
+                if (!nextSpinTime) return;
+                
+                const updateCountdown = () => {
+                    const now = new Date();
+                    const nextTime = new Date(nextSpinTime);
+                    const timeDiff = nextTime - now;
+                    
+                    if (timeDiff <= 0) {
+                        countdownEl.textContent = "00:00:00";
+                        canSpin = true;
+                        spinButton.disabled = false;
+                        return;
+                    }
+                    
+                    // Calculate hours, minutes, seconds
+                    const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+                    
+                    // Format with leading zeros
+                    const formattedHours = hours.toString().padStart(2, '0');
+                    const formattedMinutes = minutes.toString().padStart(2, '0');
+                    const formattedSeconds = seconds.toString().padStart(2, '0');
+                    
+                    countdownEl.textContent = `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+                    
+                    // Check if countdown is complete
+                    if (timeDiff <= 0) {
+                        canSpin = true;
+                        spinButton.disabled = false;
+                    }
+                };
+                
+                // Update immediately
+                updateCountdown();
+                
+                // Update every second
+                setInterval(updateCountdown, 1000);
+            }
+            
+            // Create confetti effect
+            function createConfetti() {
+                const confettiCount = 100;
+                const container = document.querySelector('.spin-container');
+                
+                for (let i = 0; i < confettiCount; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    
+                    // Random position, color, size
+                    const left = Math.random() * 100;
+                    const size = Math.random() * 10 + 5;
+                    const colorIndex = Math.floor(Math.random() * 4);
+                    const colors = [
+                        'var(--primary)',
+                        'var(--secondary)',
+                        'var(--tertiary)',
+                        'var(--quaternary)'
+                    ];
+                    
+                    confetti.style.left = `${left}%`;
+                    confetti.style.top = '0';
+                    confetti.style.width = `${size}px`;
+                    confetti.style.height = `${size}px`;
+                    confetti.style.backgroundColor = colors[colorIndex];
+                    
+                    // Random shape (square, circle, triangle)
+                    const shapes = ['50%', '0', '0 50% 50% 0'];
+                    confetti.style.borderRadius = shapes[Math.floor(Math.random() * shapes.length)];
+                    
+                    // Random animation
+                    const duration = Math.random() * 2 + 1;
+                    const delay = Math.random() * 0.5;
+                    confetti.style.animation = `confetti-fall ${duration}s linear ${delay}s`;
+                    
+                    container.appendChild(confetti);
+                    
+                    // Remove after animation
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, (duration + delay) * 1000);
+                }
+            }
+            
+            // Update user's wallet with won tokens - enhanced version
+            function updateUserWallet(amount) {
+                const token = localStorage.getItem('token');
+                
+                if (token) {
+                    // Show loading in the toast
+                    showToast(`Adding ${amount} tokens to your wallet...`, 'success');
+                    
+                    // Create a random transaction ID
+                    const transactionId = 'spin_' + Date.now() + '_' + Math.random().toString(36).substring(2, 10);
+                    
+                    // Make API call to update wallet
+                    fetch('/api/user/update-blockchain-game-wallet', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            amount: amount,
+                            transactionId: transactionId
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Failed to update wallet');
+                    })
+                    .then(data => {
+                        console.log('Wallet updated successfully:', data);
+                        
+                        // Update UI
+                        if (data.wallet) {
+                            showToast(`${amount} tokens added to your wallet! New balance: ${data.wallet}`, 'success');
+                            updateWalletUI(data.wallet);
+                        } else {
+                            showToast(`${amount} tokens added to your wallet!`, 'success');
+                            
+                            // Try to update UI with estimated value
+                            const walletText = document.querySelector('.nav-wallet-balance-text');
+                            if (walletText) {
+                                const currentText = walletText.textContent;
+                                const currentBalance = parseInt(currentText.match(/\d+/)[0]) || 0;
+                                updateWalletUI((currentBalance + amount).toString());
+                            }
+                        }
+                        
+                        // Update localStorage userData if present
+                        try {
+                            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                            if (userData) {
+                                userData.wallet = data.wallet || (parseInt(userData.wallet || 0) + amount).toString();
+                                localStorage.setItem('userData', JSON.stringify(userData));
+                                console.log('Updated localStorage wallet data');
+                            }
+                        } catch (e) {
+                            console.error('Error updating localStorage:', e);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating wallet:', error);
+                        showToast('Error adding tokens to wallet. Please try again later.', 'error');
+                        
+                        // Try alternative method if main method fails
+                        try {
+                            fetch('/api/user/wallet', {
+                                method: 'GET',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.balance) {
+                                    // Just update UI with current balance 
+                                    updateWalletUI(data.balance);
+                                }
+                            })
+                            .catch(err => console.error('Could not fetch current wallet balance:', err));
+                        } catch (e) {
+                            console.error('Error in fallback wallet update:', e);
+                        }
+                    });
+                } else {
+                    // If not logged in, just show a message
+                    showToast('Log in to collect your tokens!', 'error');
+                }
+            }
+            
+            // Update wallet UI in the navigation with improved error handling
+            function updateWalletUI(newBalance) {
+                console.log('Updating wallet UI to:', newBalance);
+                
+                // Try to find wallet balance display in the nav
+                const walletText = document.querySelector('.nav-wallet-balance-text');
+                if (walletText) {
+                    walletText.textContent = `Wallet: ${newBalance} tokens`;
+                }
+                
+                // Update other possible wallet displays
+                const walletDisplays = document.querySelectorAll('[id="walletBalance"]');
+                if (walletDisplays.length > 0) {
+                    walletDisplays.forEach(display => {
+                        display.textContent = `${newBalance} coins`;
+                    });
+                }
+                
+                // Try to update via nav.js if available
+                try {
+                    if (typeof updateUserUI === 'function') {
+                        updateUserUI({ wallet: newBalance });
+                    }
+                } catch (e) {
+                    console.error('Error calling updateUserUI:', e);
+                }
+            }
+            
+            // Show toast notification
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.classList.add('toast', type);
+                toast.innerHTML = `<div>${message}</div>`;
+                
+                toastContainer.appendChild(toast);
+                
+                // Show toast with delay
+                setTimeout(() => {
+                    toast.classList.add('show');
+                }, 10);
+                
+                // Remove toast after 3 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    
+                    // Remove from DOM after animation
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 300);
+                }, 3000);
+            }
+            
+            // Debug: Add button to reset storage (for testing)
+            if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                const resetButton = document.createElement('button');
+                resetButton.textContent = 'Reset Spin (Debug)';
+                resetButton.className = 'btn btn-sm btn-secondary mt-3';
+                resetButton.style.marginLeft = 'auto';
+                resetButton.style.marginRight = 'auto';
+                resetButton.style.display = 'block';
+                
+                resetButton.addEventListener('click', function() {
+                    localStorage.removeItem('lastSpinDate');
+                    localStorage.removeItem('nextSpinTime');
+                    localStorage.removeItem('spinStreak');
+                    streak = 0;
+                    updateStreakUI();
+                    checkSpinAvailability();
+                    location.reload();
+                });
+                
+                document.querySelector('.spin-container').appendChild(resetButton);
+            }
+        });
+    </script>
+</body>
+</html> 

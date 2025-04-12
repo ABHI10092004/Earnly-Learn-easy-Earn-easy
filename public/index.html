@@ -8,6 +8,207 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tilt.js/1.2.1/tilt.jquery.min.js" defer></script>
+    <style>
+        /* 3D and Animation Enhancements */
+        :root {
+            --card-depth: 40px;
+        }
+        
+        /* Layered 3D Hero Section */
+        .hero-section {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-particles {
+            transform: translateZ(-50px);
+            background: radial-gradient(circle at center, rgba(50, 50, 80, 0.2) 0%, transparent 70%);
+        }
+        
+        .hero-image-container {
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .hero-image {
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: translateZ(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .floating-badge {
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .floating-badge.top {
+            transform: translateZ(40px);
+        }
+        
+        .floating-badge.bottom {
+            transform: translateZ(35px);
+        }
+        
+        /* 3D Course Cards */
+        .card {
+            transform-style: preserve-3d;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            background: rgba(255, 255, 255, 0.97);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+        
+        .card:hover::before {
+            opacity: 1;
+        }
+        
+        .card-img-top {
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: translateZ(10px);
+        }
+        
+        .card:hover .card-img-top {
+            transform: translateZ(20px) scale(1.05);
+        }
+        
+        .card-title {
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: translateZ(15px);
+        }
+        
+        .card-text {
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: translateZ(12px);
+        }
+        
+        .card:hover {
+            transform: translateY(-15px) rotateX(5deg) rotateY(5deg);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Process Card 3D */
+        .process-card {
+            transform-style: preserve-3d;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .process-card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+        }
+        
+        .process-icon {
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: translateZ(20px);
+        }
+        
+        .process-card:hover .process-icon {
+            transform: translateZ(30px) scale(1.1) rotate(10deg);
+        }
+        
+        /* Testimonial Cards 3D */
+        .testimonial-card {
+            transform-style: preserve-3d;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .testimonial-card:hover {
+            transform: translateY(-15px) rotateX(5deg);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
+        }
+        
+        .testimonial-avatar {
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: translateZ(20px);
+        }
+        
+        .testimonial-card:hover .testimonial-avatar {
+            transform: translateZ(30px) scale(1.1);
+        }
+        
+        /* Floating particles */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+        }
+        
+        /* Interactive modals */
+        .modal-content {
+            transform-style: preserve-3d;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            transform: translateZ(20px);
+        }
+        
+        .modal-body {
+            transform: translateZ(10px);
+        }
+        
+        /* Animation for shimmer effect */
+        @keyframes shimmer {
+            0% {
+                background-position: -100% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+        
+        /* Enhance cursor to show 3D interactivity */
+        .js-tilt-glare {
+            border-radius: 15px;
+        }
+        
+        /* Mobile adaptations */
+        @media (max-width: 768px) {
+            .card:hover, .testimonial-card:hover, .process-card:hover {
+                transform: translateY(-10px);
+            }
+            
+            .card-img-top, .card-title, .card-text, 
+            .process-icon, .testimonial-avatar {
+                transform: none !important;
+            }
+            
+            .hero-image, .floating-badge {
+                transform: none !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Preloader -->
@@ -25,7 +226,7 @@
 
     <!-- Hero Section -->
     <section class="hero-section">
-        <div class="hero-particles"></div>
+        <div class="hero-particles" id="hero-particles"></div>
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-6" data-aos="fade-right" data-aos-duration="1000">
@@ -54,7 +255,7 @@
                     </div>
                 </div>
                 <div class="col-lg-6" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
-                    <div class="hero-image-container">
+                    <div class="hero-image-container" data-tilt data-tilt-max="10" data-tilt-scale="1.05" data-tilt-glare data-tilt-max-glare="0.3">
                         <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Blockchain Technology" class="img-fluid rounded-3 hero-image">
                         <div class="floating-badge top">
                             <i class="fas fa-certificate"></i>
@@ -270,14 +471,14 @@
                         <div class="input-group mb-3">
                             <input type="email" class="form-control" placeholder="Your email address" aria-label="Your email address">
                             <button class="btn btn-primary" type="submit">Subscribe</button>
-                        </div>
+                    </div>
                     </form>
                 </div>
             </div>
             <hr class="mt-4 mb-3 bg-secondary">
             <div class="row align-items-center">
                 <div class="col-md-6 text-center text-md-start">
-                    <p class="mb-0">&copy; 2023 Earnly. All rights reserved.</p>
+                <p class="mb-0">&copy; 2023 Earnly. All rights reserved.</p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
                     <ul class="list-inline mb-0">
@@ -468,7 +669,7 @@
             
             // Initialize particles for hero section
             if (typeof particlesJS !== 'undefined') {
-                particlesJS.load('hero-particles', {
+                particlesJS('hero-particles', {
                     particles: {
                         number: { value: 80, density: { enable: true, value_area: 800 } },
                         color: { value: "#ffffff" },
@@ -483,7 +684,142 @@
                     }
                 });
             }
+            
+            // Initialize tilt effect for hero image and cards
+            if (typeof $.fn.tilt !== 'undefined') {
+                $('.hero-image-container').tilt({
+                    maxTilt: 10,
+                    glare: true,
+                    maxGlare: .3,
+                    scale: 1.05
+                });
+                
+                // Add 3D effects to course cards when loaded
+                function initCourseCards() {
+                    $('.card').tilt({
+                        maxTilt: 8,
+                        glare: true,
+                        maxGlare: .2,
+                        scale: 1.03
+                    });
+                }
+                
+                // Check if course cards are loaded and initialize tilt
+                const checkCoursesLoaded = setInterval(function() {
+                    if ($('#coursesContainer .card').length > 0) {
+                        initCourseCards();
+                        clearInterval(checkCoursesLoaded);
+                    }
+                }, 500);
+                
+                // Also initialize on document ready for any existing cards
+                setTimeout(initCourseCards, 2000);
+                
+                // Initialize tilt for testimonial cards
+                $('.testimonial-card').tilt({
+                    maxTilt: 5,
+                    glare: true,
+                    maxGlare: .1,
+                    scale: 1.02
+                });
+                
+                // Initialize tilt for process cards
+                $('.process-card').tilt({
+                    maxTilt: 5,
+                    glare: true,
+                    maxGlare: .1,
+                    scale: 1.02
+                });
+            }
+            
+            // Add floating particles to the page background
+            const createBackgroundParticles = function() {
+                const body = document.querySelector('body');
+                const particlesContainer = document.createElement('div');
+                particlesContainer.className = 'background-particles';
+                particlesContainer.style.position = 'fixed';
+                particlesContainer.style.top = '0';
+                particlesContainer.style.left = '0';
+                particlesContainer.style.width = '100%';
+                particlesContainer.style.height = '100%';
+                particlesContainer.style.pointerEvents = 'none';
+                particlesContainer.style.zIndex = '-1';
+                body.appendChild(particlesContainer);
+                
+                for (let i = 0; i < 30; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    
+                    // Random size between 2px and 6px
+                    const size = Math.random() * 4 + 2;
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    
+                    // Random position
+                    const posX = Math.random() * 100;
+                    const posY = Math.random() * 100;
+                    particle.style.left = `${posX}%`;
+                    particle.style.top = `${posY}%`;
+                    
+                    // Random opacity
+                    particle.style.opacity = Math.random() * 0.3 + 0.1;
+                    
+                    // Random animation duration and delay
+                    const duration = Math.random() * 30 + 20;
+                    const delay = Math.random() * 15;
+                    particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+                    
+                    particlesContainer.appendChild(particle);
+                }
+            };
+            
+            // Create background particles
+            createBackgroundParticles();
+            
+            // Add mouse movement parallax effect to hero section
+            const heroSection = document.querySelector('.hero-section');
+            if (heroSection) {
+                heroSection.addEventListener('mousemove', function(e) {
+                    const centerX = heroSection.offsetWidth / 2;
+                    const centerY = heroSection.offsetHeight / 2;
+                    const moveX = (e.clientX - centerX) / 20;
+                    const moveY = (e.clientY - centerY) / 20;
+                    
+                    // Don't apply this effect on mobile devices
+                    if (window.innerWidth > 768) {
+                        document.querySelectorAll('.floating-badge.top').forEach(el => {
+                            el.style.transform = `translateZ(40px) translate(${moveX * 1.5}px, ${moveY * 1.5}px)`;
+                        });
+                        
+                        document.querySelectorAll('.floating-badge.bottom').forEach(el => {
+                            el.style.transform = `translateZ(35px) translate(${moveX * 1.2}px, ${moveY * 1.2}px)`;
+                        });
+                    }
+                });
+            }
         });
     </script>
+    
+    <!-- Chatbot -->
+    <div class="chat-toggle" id="chat-toggle">
+        <div class="toggle-icon"><i class="fas fa-comment-dots"></i></div>
+    </div>
+    <div class="chat-container" id="chat-container">
+        <div class="chat-header">
+            <h1><i class="fas fa-graduation-cap"></i> Learn-to-Earn Assistant</h1>
+            <button class="minimize-btn" id="minimize-btn"><i class="fas fa-minus"></i></button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages will be added here dynamically -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off">
+            <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    
+    <!-- Chatbot CSS and JS -->
+    <link rel="stylesheet" href="chatbot.css">
+    <script src="chatbot.js"></script>
 </body>
 </html> 

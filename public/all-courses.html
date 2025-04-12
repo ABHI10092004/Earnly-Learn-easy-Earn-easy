@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Courses - Earnly</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Card styles for courses */
+        .card {
+            transform-style: preserve-3d;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            background: rgba(255, 255, 255, 0.97);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+        
+        .card:hover::before {
+            opacity: 1;
+        }
+        
+        .card-img-top {
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: translateZ(10px);
+        }
+        
+        .card:hover .card-img-top {
+            transform: translateZ(20px) scale(1.05);
+        }
+        
+        .card-title {
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: translateZ(15px);
+        }
+        
+        .card-text {
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: translateZ(12px);
+        }
+        
+        .card:hover {
+            transform: translateY(-15px) rotateX(5deg) rotateY(5deg);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Filter controls */
+        .filter-controls {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Animation for shimmer effect */
+        @keyframes shimmer {
+            0% {
+                background-position: -100% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+        
+        /* Loading animation */
+        .course-loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #FFF;
+            border-bottom-color: var(--primary);
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="loader">
+            <svg viewBox="0 0 80 80">
+                <circle id="loader-circle" cx="40" cy="40" r="32"></circle>
+            </svg>
+            <div class="loader-text">EARNLY</div>
+        </div>
+    </div>
+
+    <!-- Include Navigation -->
+    <div id="nav-placeholder"></div>
+
+    <!-- All Courses Header -->
+    <section class="page-header py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6" data-aos="fade-right" data-aos-duration="1000">
+                    <h1 class="display-4 fw-bold mb-4 animated-text">All Courses</h1>
+                    <p class="lead mb-4">Browse our extensive collection of blockchain courses. Find the perfect course to enhance your skills and earn rewards while learning.</p>
+                </div>
+                <div class="col-lg-6 text-center text-lg-end" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
+                    <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Courses" class="img-fluid rounded-3" style="max-width: 400px;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Courses Filter Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="filter-controls" data-aos="fade-up">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="searchCourse" class="form-label">Search Courses</label>
+                        <input type="text" class="form-control" id="searchCourse" placeholder="Enter keywords...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="categoryFilter" class="form-label">Category</label>
+                        <select class="form-select" id="categoryFilter">
+                            <option value="">All Categories</option>
+                            <option value="blockchain">Blockchain</option>
+                            <option value="cryptocurrency">Cryptocurrency</option>
+                            <option value="smart-contracts">Smart Contracts</option>
+                            <option value="defi">DeFi</option>
+                            <option value="nft">NFTs</option>
+                            <option value="web3">Web3</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="difficultyFilter" class="form-label">Difficulty</label>
+                        <select class="form-select" id="difficultyFilter">
+                            <option value="">All Levels</option>
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-primary w-100" id="applyFilters">
+                            <i class="fas fa-filter me-2"></i>Apply
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Courses Grid -->
+            <div class="row g-4" id="coursesGrid">
+                <!-- Courses will be loaded here dynamically -->
+                <div class="col-12 text-center my-5">
+                    <div class="course-loader"></div>
+                    <p class="mt-3">Loading courses...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <nav aria-label="Course pagination">
+                        <ul class="pagination justify-content-center" id="coursesPagination">
+                            <!-- Pagination will be added dynamically -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8 mb-4 mb-lg-0" data-aos="fade-right">
+                    <h2 class="text-white fw-bold mb-3">Ready to start earning while learning?</h2>
+                    <p class="text-white-50 mb-0">Join thousands of learners already benefiting from our platform.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end" data-aos="fade-left">
+                    <button class="btn btn-light btn-lg" data-bs-toggle="modal" data-bs-target="#signupModal">
+                        Sign Up Now
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-5 bg-dark text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
+                    <h5 class="mb-4"><i class="fas fa-coins me-2"></i>Earnly</h5>
+                    <p class="mb-4">Learn blockchain technology and earn rewards for your progress. Our mission is to make blockchain education accessible, engaging, and rewarding.</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4 mb-md-0">
+                    <h5 class="mb-4">Quick Links</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/all-courses.html">Courses</a></li>
+                        <li><a href="/#how-it-works">How It Works</a></li>
+                        <li><a href="/#testimonials">Testimonials</a></li>
+                        <li><a href="/dashboard.html">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4 mb-md-0">
+                    <h5 class="mb-4">Resources</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">Tutorials</a></li>
+                        <li><a href="#">Community</a></li>
+                        <li><a href="#">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="mb-4">Subscribe to Newsletter</h5>
+                    <p class="mb-4">Get the latest updates, news and product offers sent directly to your inbox.</p>
+                    <form class="footer-subscribe-form">
+                        <div class="input-group mb-3">
+                            <input type="email" class="form-control" placeholder="Your email address" aria-label="Your email address">
+                            <button class="btn btn-primary" type="submit">Subscribe</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <hr class="mt-4 mb-3 bg-secondary">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2023 Earnly. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item"><a href="#">Privacy Policy</a></li>
+                        <li class="list-inline-item"><a href="#">Terms of Service</a></li>
+                        <li class="list-inline-item"><a href="#">Cookie Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title">Welcome Back</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="loginEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="loginPassword" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">Remember me</label>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="#" class="text-decoration-none">Forgot password?</a>
+                        </div>
+                    </form>
+                    <hr class="my-4">
+                    <div class="text-center">
+                        <p class="mb-2">Don't have an account?</p>
+                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#signupModal" data-bs-dismiss="modal">
+                            Create Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal fade" id="signupModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title">Create an Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="signupForm">
+                        <div class="mb-3">
+                            <label for="signupName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="signupName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="signupEmail" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="signupEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="signupPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="signupPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="signupConfirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="signupConfirmPassword" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="termsCheck" required>
+                            <label class="form-check-label" for="termsCheck">I agree to the <a href="#" class="text-decoration-none">Terms of Service</a> and <a href="#" class="text-decoration-none">Privacy Policy</a></label>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Create Account</button>
+                        </div>
+                    </form>
+                    <hr class="my-4">
+                    <div class="text-center">
+                        <p class="mb-2">Already have an account?</p>
+                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal">
+                            Login
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Initialize AOS animations
+        AOS.init();
+
+        // Fallback implementation of checkAuthStatus in case auth.js fails to load
+        if (typeof checkAuthStatus !== 'function') {
+            function checkAuthStatus() {
+                console.warn('Using fallback checkAuthStatus function. Auth.js may not have loaded properly.');
+                const token = localStorage.getItem('token');
+                
+                if (token) {
+                    // User is logged in
+                    const authButtons = document.querySelector('.nav-auth-buttons');
+                    const userMenu = document.querySelector('.nav-user-menu');
+                    
+                    if (authButtons) authButtons.style.display = 'none';
+                    if (userMenu) userMenu.style.display = 'block';
+                } else {
+                    // User is not logged in
+                    const authButtons = document.querySelector('.nav-auth-buttons');
+                    const userMenu = document.querySelector('.nav-user-menu');
+                    
+                    if (authButtons) authButtons.style.display = 'flex';
+                    if (userMenu) userMenu.style.display = 'none';
+                }
+            }
+        }
+
+        // Load navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/nav.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('nav-placeholder').innerHTML = data;
+                    checkAuthStatus();
+                })
+                .catch(error => {
+                    console.error('Error loading navigation:', error);
+                    document.getElementById('nav-placeholder').innerHTML = '<div class="alert alert-danger">Failed to load navigation. Please refresh the page.</div>';
+                });
+                
+            // Load courses
+            loadAllCourses();
+        });
+        
+        // Global variables
+        let allCourses = [];
+        let currentPage = 1;
+        let totalPages = 1;
+        let coursesPerPage = 12;
+        let filters = {
+            search: '',
+            category: '',
+            difficulty: ''
+        };
+        
+        // Function to load all courses
+        async function loadAllCourses() {
+            try {
+                const token = localStorage.getItem('token');
+                const headers = {};
+                
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                
+                // Show loading state
+                document.getElementById('coursesGrid').innerHTML = `
+                    <div class="col-12 text-center my-5">
+                        <div class="course-loader"></div>
+                        <p class="mt-3">Loading courses...</p>
+                    </div>
+                `;
+                
+                // Build query parameters
+                let queryParams = new URLSearchParams();
+                queryParams.append('page', currentPage);
+                queryParams.append('limit', coursesPerPage);
+                
+                if (filters.search) queryParams.append('search', filters.search);
+                if (filters.category) queryParams.append('category', filters.category);
+                if (filters.difficulty) queryParams.append('difficulty', filters.difficulty);
+                
+                // Fetch courses
+                const response = await fetch(`/api/courses?${queryParams.toString()}`, {
+                    headers: headers
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch courses');
+                }
+                
+                const data = await response.json();
+                
+                // Update pagination
+                if (data.pagination) {
+                    totalPages = data.pagination.pages;
+                    updatePagination();
+                }
+                
+                allCourses = data.courses || [];
+                
+                // Render courses
+                renderCourses();
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                document.getElementById('coursesGrid').innerHTML = `
+                    <div class="col-12 text-center">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Failed to load courses. Please try again.
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Function to render courses
+        function renderCourses() {
+            const coursesGrid = document.getElementById('coursesGrid');
+            
+            if (!allCourses || allCourses.length === 0) {
+                coursesGrid.innerHTML = `
+                    <div class="col-12 text-center">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No courses found matching your criteria. Try adjusting your filters.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let coursesHTML = '';
+            
+            allCourses.forEach(course => {
+                const difficultyBadge = getDifficultyBadge(course.difficulty);
+                
+                coursesHTML += `
+                    <div class="col-md-6 col-lg-4 col-xl-3" data-aos="fade-up">
+                        <div class="card h-100" data-tilt data-tilt-max="10" data-tilt-scale="1.05">
+                            <img src="${course.imageUrl || 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'}" 
+                                class="card-img-top" alt="${course.title}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    ${difficultyBadge}
+                                    <span class="badge bg-light text-dark">
+                                        <i class="fas fa-users me-1"></i> ${course.enrolledUsers || 0}
+                                    </span>
+                                </div>
+                                <h5 class="card-title">${course.title}</h5>
+                                <p class="card-text text-muted">${course.description ? course.description.substring(0, 100) + '...' : 'No description available.'}</p>
+                            </div>
+                            <div class="card-footer bg-transparent border-top-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-coins text-warning"></i>
+                                        <small class="text-muted ms-1">${course.reward || 0} tokens</small>
+                                    </div>
+                                    <a href="/course-details.html?id=${course._id}" class="btn btn-sm btn-primary">View Course</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            coursesGrid.innerHTML = coursesHTML;
+            
+            // Initialize tilt effect on cards
+            if (typeof jQuery !== 'undefined' && typeof jQuery.fn.tilt !== 'undefined') {
+                jQuery('.card[data-tilt]').tilt({
+                    maxTilt: 5,
+                    scale: 1.02,
+                    glare: true,
+                    maxGlare: .1
+                });
+            }
+        }
+        
+        // Function to get appropriate badge for difficulty level
+        function getDifficultyBadge(difficulty) {
+            switch (difficulty?.toLowerCase()) {
+                case 'beginner':
+                    return '<span class="badge bg-success">Beginner</span>';
+                case 'intermediate':
+                    return '<span class="badge bg-warning text-dark">Intermediate</span>';
+                case 'advanced':
+                    return '<span class="badge bg-danger">Advanced</span>';
+                default:
+                    return '<span class="badge bg-secondary">All Levels</span>';
+            }
+        }
+        
+        // Function to update pagination
+        function updatePagination() {
+            const paginationElement = document.getElementById('coursesPagination');
+            
+            if (totalPages <= 1) {
+                paginationElement.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // Previous button
+            paginationElement.innerHTML = `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${currentPage - 1}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            `;
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                paginationHTML += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" data-page="${i}">${i}</a>
+                    </li>
+                `;
+            }
+            
+            // Next button
+            paginationHTML += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${currentPage + 1}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            `;
+            
+            paginationElement.innerHTML = paginationHTML;
+            
+            // Add event listeners to pagination links
+            document.querySelectorAll('#coursesPagination .page-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = parseInt(e.target.closest('a').dataset.page);
+                    if (page && page !== currentPage) {
+                        currentPage = page;
+                        loadAllCourses();
+                        window.scrollTo({top: 0, behavior: 'smooth'});
+                    }
+                });
+            });
+        }
+        
+        // Event listener for filter button
+        document.getElementById('applyFilters').addEventListener('click', () => {
+            filters = {
+                search: document.getElementById('searchCourse').value.trim(),
+                category: document.getElementById('categoryFilter').value,
+                difficulty: document.getElementById('difficultyFilter').value
+            };
+            
+            currentPage = 1;
+            loadAllCourses();
+        });
+        
+        // Event listener for search input (enter key)
+        document.getElementById('searchCourse').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                filters.search = e.target.value.trim();
+                currentPage = 1;
+                loadAllCourses();
+            }
+        });
+    </script>
+</body>
+</html> 

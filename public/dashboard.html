@@ -7,6 +7,67 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .profile-header {
+            background: linear-gradient(to right, #4e54c8, #8f94fb);
+            color: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-header .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 5px solid rgba(255, 255, 255, 0.5);
+            object-fit: cover;
+        }
+        
+        .wallet-card {
+            background: linear-gradient(to right, #f46b45, #eea849);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .wallet-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stats-card {
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .activity-item {
+            padding: 15px;
+            border-left: 3px solid #4e54c8;
+            background-color: #f8f9fa;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        
+        .course-progress {
+            height: 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        
+        .edit-profile-form label {
+            font-weight: 500;
+        }
+    </style>
 </head>
 <body>
     <!-- Include Navigation -->
@@ -14,72 +75,231 @@
 
     <!-- Dashboard Content -->
     <div class="container my-5">
+        <!-- Profile Header -->
+        <div class="profile-header mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-3 text-center text-md-start">
+                    <img id="userProfileImage" src="https://via.placeholder.com/120" class="profile-img mb-3 mb-md-0" alt="Profile Image">
+                </div>
+                <div class="col-md-9">
+                    <h2 id="userFullName">Loading...</h2>
+                    <p id="userEmail" class="mb-2"><i class="fas fa-envelope me-2"></i>Loading...</p>
+                    <p id="userJoinDate" class="mb-3"><i class="fas fa-calendar-alt me-2"></i>Member since: Loading...</p>
+                    <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <i class="fas fa-user-edit me-2"></i>Edit Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
+            <!-- Left Column -->
             <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Profile</h5>
-                        <div class="text-center mb-3">
-                            <img src="https://via.placeholder.com/100" class="rounded-circle" alt="Profile">
-                            <h4 class="mt-2" id="userFullName">User Name</h4>
-                            <p class="text-muted" id="userEmail">user@example.com</p>
+                <!-- Wallet Card -->
+                <div class="wallet-card mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">Wallet Balance</h5>
+                            <h3 id="walletBalance" class="mb-0">0 APT</h3>
                         </div>
-                        <div class="d-grid">
-                            <button class="btn btn-primary">Edit Profile</button>
+                        <div>
+                            <i class="fas fa-wallet fa-3x"></i>
                         </div>
+                    </div>
+                    <hr class="my-3" style="border-color: rgba(255, 255, 255, 0.3);">
+                    <div class="d-flex justify-content-between">
+                        <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#transactionHistoryModal">
+                            <i class="fas fa-history me-1"></i>History
+                        </button>
+                        <button class="btn btn-light btn-sm">
+                            <i class="fas fa-exchange-alt me-1"></i>Transfer
+                        </button>
                     </div>
                 </div>
                 
-                <div class="card">
+                <!-- Stats Card -->
+                <div class="card stats-card mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Statistics</h5>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-book-open me-2 text-primary"></i>Courses Enrolled</span>
+                            <span class="badge bg-primary rounded-pill" id="enrolledCount">0</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-check-circle me-2 text-success"></i>Courses Completed</span>
+                            <span class="badge bg-success rounded-pill" id="completedCount">0</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-certificate me-2 text-warning"></i>Certificates Earned</span>
+                            <span class="badge bg-warning text-dark rounded-pill" id="certificatesCount">0</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-coins me-2 text-danger"></i>Total Earnings</span>
+                            <span class="badge bg-danger rounded-pill" id="totalEarnings">0 APT</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Additional Information Card -->
+                <div class="card stats-card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Additional Information</h5>
+                    </div>
                     <div class="card-body">
-                        <h5 class="card-title">Statistics</h5>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Courses Enrolled
-                                <span class="badge bg-primary rounded-pill" id="enrolledCount">0</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Courses Completed
-                                <span class="badge bg-success rounded-pill" id="completedCount">0</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Total Earnings
-                                <span class="badge bg-warning rounded-pill" id="totalEarnings">0 APT</span>
-                            </li>
-                        </ul>
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-2">Username</h6>
+                            <p id="username" class="mb-0">Loading...</p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-2">Phone Number</h6>
+                            <p id="phoneNumber" class="mb-0">Loading...</p>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-2">Location</h6>
+                            <p id="location" class="mb-0">Loading...</p>
+                        </div>
                     </div>
                 </div>
             </div>
             
+            <!-- Right Column -->
             <div class="col-md-8">
+                <!-- My Courses Card -->
                 <div class="card mb-4">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">My Courses</h5>
+                        <a href="/all-courses.html" class="btn btn-sm btn-primary">Browse Courses</a>
+                    </div>
                     <div class="card-body">
-                        <h5 class="card-title">My Courses</h5>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Course</th>
-                                        <th>Progress</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="enrolledCoursesTable">
-                                    <!-- Course rows will be added here dynamically -->
-                                </tbody>
-                            </table>
+                        <div class="row" id="enrolledCourses">
+                            <!-- Course cards will be added here dynamically -->
+                            <div class="col-12 text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-3">Loading your courses...</p>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
+                <!-- Recent Activity Card -->
                 <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Recent Activity</h5>
+                    </div>
                     <div class="card-body">
-                        <h5 class="card-title">Recent Activity</h5>
-                        <div class="activity-feed" id="activityFeed">
+                        <div id="activityFeed">
                             <!-- Activity items will be added here dynamically -->
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-3">Loading your activity...</p>
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProfileForm" class="edit-profile-form">
+                        <div class="text-center mb-4">
+                            <img id="profileImagePreview" src="https://via.placeholder.com/100" class="rounded-circle mb-3" width="100" height="100" alt="Profile Image">
+                            <div>
+                                <label for="profileImageUpload" class="btn btn-sm btn-outline-primary">
+                                    Change Photo
+                                </label>
+                                <input type="file" id="profileImageUpload" class="d-none" accept="image/*">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="editFullName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="editFullName" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="editUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="editUsername">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="editEmail" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="editEmail" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="editPhone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="editPhone">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="editLocation" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="editLocation">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="editBio" class="form-label">Bio</label>
+                            <textarea class="form-control" id="editBio" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="alert alert-success d-none" id="updateSuccessMessage">
+                            Profile updated successfully!
+                        </div>
+                        
+                        <div class="alert alert-danger d-none" id="updateErrorMessage">
+                            Failed to update profile. Please try again.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveProfileBtn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction History Modal -->
+    <div class="modal fade" id="transactionHistoryModal" tabindex="-1" aria-labelledby="transactionHistoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="transactionHistoryModalLabel">Transaction History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionHistoryTableBody">
+                                <!-- Transaction history will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -88,6 +308,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/auth.js"></script>
     
     <!-- Load navigation -->
     <script>

@@ -162,4 +162,70 @@ router.post('/record-transaction', authMiddleware, async (req, res) => {
     }
 });
 
+// Add a direct wallet update endpoint for the Blockchain Quest game
+router.post('/update-blockchain-game-wallet', authMiddleware, async (req, res) => {
+    try {
+        const { amount, transactionId } = req.body;
+        
+        if (!amount) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Amount is required' 
+            });
+        }
+        
+        // Convert amount to number and validate
+        const amountNumber = parseInt(amount);
+        if (isNaN(amountNumber) || amountNumber <= 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Amount must be a positive number' 
+            });
+        }
+        
+        // Get the user
+        const user = req.user;
+        
+        // Update wallet balance
+        const currentWallet = parseInt(user.wallet) || 0;
+        const newWallet = currentWallet + amountNumber;
+        user.wallet = newWallet.toString();
+        
+        // Save user with updated wallet
+        await user.save();
+        
+        // Create a transaction record
+        const transaction = new Transaction({
+            userId: user._id,
+            hash: transactionId || `game_${Date.now()}`,
+            type: 'quiz',
+            amount: amountNumber.toString(),
+            walletAddress: 'blockchain-game',
+            description: `Earned ${amountNumber} tokens from Blockchain Quest game`,
+            timestamp: new Date()
+        });
+        
+        await transaction.save();
+        
+        // Return success with updated wallet balance
+        res.json({
+            success: true,
+            message: 'Wallet updated successfully',
+            wallet: user.wallet,
+            transaction: {
+                id: transaction._id,
+                amount: transaction.amount,
+                type: transaction.type,
+                timestamp: transaction.timestamp
+            }
+        });
+    } catch (error) {
+        console.error('Error updating wallet from blockchain game:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error updating wallet balance' 
+        });
+    }
+});
+
 module.exports = { router, authMiddleware, recordTransaction }; 

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games - Earn While You Learn</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --primary: #6B73FF;
+            --primary-dark: #4B53DF;
+            --secondary: #FF7C7C;
+            --tertiary: #6EDFF5;
+            --quaternary: #F9C270;
+            --dark: #1a1a1a;
+            --light: #f8f9fa;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--light);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .games-header {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .games-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--quaternary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            display: inline-block;
+        }
+
+        .games-title::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 4px;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(to right, var(--quaternary), var(--secondary));
+            border-radius: 2px;
+        }
+
+        .games-subtitle {
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            color: #e0e0e0;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: perspective(1000px) rotateX(0) rotateY(0);
+            transform-style: preserve-3d;
+        }
+
+        .game-card:hover {
+            transform: perspective(1000px) translateY(-20px) rotateX(10deg) rotateY(5deg);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            transform: rotate(0deg);
+            transition: transform 0.6s;
+            z-index: -1;
+            opacity: 0;
+        }
+
+        .game-card:hover::before {
+            opacity: 1;
+            transform: rotate(45deg);
+        }
+
+        .game-card-inner {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--quaternary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            box-shadow: 0 10px 20px rgba(249, 194, 112, 0.3);
+            transform: translateZ(30px);
+            transition: transform 0.5s ease;
+        }
+
+        .game-card:hover .game-icon {
+            transform: translateZ(50px) scale(1.1);
+        }
+
+        .game-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: white;
+            transform: translateZ(20px);
+            transition: transform 0.5s ease;
+        }
+
+        .game-card:hover .game-title {
+            transform: translateZ(40px);
+        }
+
+        .game-description {
+            font-size: 1rem;
+            color: #e0e0e0;
+            margin-bottom: 25px;
+            flex-grow: 1;
+            transform: translateZ(15px);
+            transition: transform 0.5s ease;
+        }
+
+        .game-card:hover .game-description {
+            transform: translateZ(30px);
+        }
+
+        .game-rewards {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            transform: translateZ(10px);
+            transition: transform 0.5s ease;
+        }
+
+        .game-card:hover .game-rewards {
+            transform: translateZ(25px);
+        }
+
+        .game-token-img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        .game-rewards-text {
+            color: var(--quaternary);
+            font-weight: 600;
+        }
+
+        .game-button {
+            padding: 12px 25px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, var(--quaternary), var(--secondary));
+            color: white;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease, transform 0.5s ease;
+            box-shadow: 0 10px 20px rgba(249, 194, 112, 0.2);
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+            transform: translateZ(15px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s;
+        }
+
+        .game-card:hover .game-button {
+            transform: translateZ(35px);
+            box-shadow: 0 15px 30px rgba(249, 194, 112, 0.3);
+        }
+
+        .game-card:hover .game-button::before {
+            left: 100%;
+        }
+
+        .game-card-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.1;
+            transition: opacity 0.5s ease;
+            z-index: 0;
+        }
+
+        .game-card:hover .game-card-bg {
+            opacity: 0.15;
+        }
+
+        .coming-soon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+            100% {
+                transform: translateY(0) rotate(360deg);
+            }
+        }
+
+        /* 3D Tilt Effect */
+        .js-tilt-glare {
+            border-radius: 15px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .games-title {
+                font-size: 2.8rem;
+            }
+            
+            .game-card {
+                transform: none !important;
+            }
+            
+            .game-card:hover {
+                transform: translateY(-10px) !important;
+            }
+            
+            .game-icon, .game-title, .game-description, 
+            .game-rewards, .game-button {
+                transform: none !important;
+            }
+        }
+
+        /* Shimmer animation for cards */
+        @keyframes shimmer {
+            0% {
+                background-position: -100% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .shimmer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.05),
+                transparent
+            );
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .game-card:hover .shimmer {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div id="nav-placeholder"></div>
+
+    <!-- Particles Background -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container game-container">
+        <div class="games-header">
+            <h1 class="games-title">Learning Games</h1>
+            <p class="games-subtitle">Play these educational games to earn tokens while having fun and expanding your knowledge. The more you play, the more you earn!</p>
+        </div>
+
+        <div class="games-grid">
+            <!-- Blockchain Trivia Game -->
+            <div class="game-card" data-tilt data-tilt-max="10" data-tilt-scale="1.05" data-tilt-glare data-tilt-max-glare="0.3">
+                <div class="game-card-bg" style="background-image: url('https://images.unsplash.com/photo-1639152201720-5e536d254d81?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80');"></div>
+                <div class="shimmer"></div>
+                <div class="game-card-inner">
+                    <div class="game-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="game-title">Blockchain Trivia</h3>
+                    <p class="game-description">Test your knowledge of blockchain technology, cryptocurrencies, and decentralized finance with this fun and challenging trivia game.</p>
+                    <div class="game-rewards">
+                        <img src="https://cryptologos.cc/logos/aptos-apt-logo.png" alt="Token" class="game-token-img">
+                        <span class="game-rewards-text">Earn up to 100 tokens per game</span>
+                    </div>
+                    <a href="playlearnwin.html" class="game-button">
+                        Play Now <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Daily Spin Game -->
+            <div class="game-card" data-tilt data-tilt-max="10" data-tilt-scale="1.05" data-tilt-glare data-tilt-max-glare="0.3">
+                <div class="game-card-bg" style="background-image: url('https://images.unsplash.com/photo-1618172193763-c511deb635ca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80');"></div>
+                <div class="shimmer"></div>
+                <div class="game-card-inner">
+                    <div class="game-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <h3 class="game-title">Daily Spin</h3>
+                    <p class="game-description">Come back every day to spin the wheel and win random token rewards. Build a streak for even better prizes and bonuses!</p>
+                    <div class="game-rewards">
+                        <img src="https://cryptologos.cc/logos/aptos-apt-logo.png" alt="Token" class="game-token-img">
+                        <span class="game-rewards-text">Win 5-100 tokens daily</span>
+                    </div>
+                    <a href="dailyspin.html" class="game-button">
+                        Spin Now <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Memory Match Game (Coming Soon) -->
+            <div class="game-card" data-tilt data-tilt-max="10" data-tilt-scale="1.05" data-tilt-glare data-tilt-max-glare="0.3">
+                <span class="coming-soon">Coming Soon</span>
+                <div class="game-card-bg" style="background-image: url('https://images.unsplash.com/photo-1616161560197-3b65aef4bb32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80');"></div>
+                <div class="shimmer"></div>
+                <div class="game-card-inner">
+                    <div class="game-icon">
+                        <i class="fas fa-puzzle-piece"></i>
+                    </div>
+                    <h3 class="game-title">Memory Match</h3>
+                    <p class="game-description">Test your memory skills by matching pairs of crypto and blockchain concepts. The faster you match, the more tokens you'll earn!</p>
+                    <div class="game-rewards">
+                        <img src="https://cryptologos.cc/logos/aptos-apt-logo.png" alt="Token" class="game-token-img">
+                        <span class="game-rewards-text">Earn based on completion time</span>
+                    </div>
+                    <a href="#" class="game-button" style="opacity: 0.7; cursor: not-allowed;">
+                        Coming Soon <i class="fas fa-hourglass-half ms-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Crypto Puzzle Game (Coming Soon) -->
+            <div class="game-card" data-tilt data-tilt-max="10" data-tilt-scale="1.05" data-tilt-glare data-tilt-max-glare="0.3">
+                <span class="coming-soon">Coming Soon</span>
+                <div class="game-card-bg" style="background-image: url('https://images.unsplash.com/photo-1642543348745-02576b5f881a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80');"></div>
+                <div class="shimmer"></div>
+                <div class="game-card-inner">
+                    <div class="game-icon">
+                        <i class="fas fa-cubes"></i>
+                    </div>
+                    <h3 class="game-title">Crypto Puzzle</h3>
+                    <p class="game-description">Solve blockchain-themed puzzles and riddles to earn tokens. Each puzzle gets progressively harder but offers bigger rewards.</p>
+                    <div class="game-rewards">
+                        <img src="https://cryptologos.cc/logos/aptos-apt-logo.png" alt="Token" class="game-token-img">
+                        <span class="game-rewards-text">Earn 20-200 tokens per puzzle</span>
+                    </div>
+                    <a href="#" class="game-button" style="opacity: 0.7; cursor: not-allowed;">
+                        Coming Soon <i class="fas fa-hourglass-half ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tilt.js/1.2.1/tilt.jquery.min.js"></script>
+    
+    <!-- Load navigation -->
+    <script>
+        $(function() {
+            $("#nav-placeholder").load("nav.html", function() {
+                // After loading nav.html, load its JavaScript
+                $.getScript("/nav.js");
+            });
+        });
+    </script>
+    
+    <!-- Particles Animation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create particles
+            const particlesContainer = document.getElementById('particles');
+            
+            for (let i = 0; i < 50; i++) {
+                createParticle(particlesContainer);
+            }
+            
+            // Initialize tilt effect
+            $('.game-card').tilt({
+                glare: true,
+                maxGlare: .3,
+                scale: 1.05
+            });
+            
+            // Add mousemove event for 3D hover effect
+            document.querySelectorAll('.game-card').forEach(card => {
+                card.addEventListener('mousemove', function(e) {
+                    const cardRect = card.getBoundingClientRect();
+                    const x = e.clientX - cardRect.left;
+                    const y = e.clientY - cardRect.top;
+                    
+                    const centerX = cardRect.width / 2;
+                    const centerY = cardRect.height / 2;
+                    
+                    const moveX = (x - centerX) / 20;
+                    const moveY = (y - centerY) / 20;
+                    
+                    // Apply movement to inner elements with different depths
+                    card.querySelectorAll('.game-icon, .game-title, .game-description, .game-rewards, .game-button').forEach(el => {
+                        const depth = parseFloat(el.style.transform.replace('translateZ(', '').replace('px)', '') || 0) / 50;
+                        el.style.transform = `translateZ(${el.dataset.z || 20}px) translate(${moveX * depth}px, ${moveY * depth}px)`;
+                    });
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    // Reset positions
+                    card.querySelectorAll('.game-icon, .game-title, .game-description, .game-rewards, .game-button').forEach(el => {
+                        el.style.transform = `translateZ(${el.dataset.z || 0}px)`;
+                    });
+                });
+            });
+        });
+        
+        // Function to create a particle
+        function createParticle(container) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            // Random size between 3px and 8px
+            const size = Math.random() * 5 + 3;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            // Random position
+            const posX = Math.random() * 100;
+            const posY = Math.random() * 100;
+            particle.style.left = `${posX}%`;
+            particle.style.top = `${posY}%`;
+            
+            // Random opacity
+            particle.style.opacity = Math.random() * 0.5 + 0.1;
+            
+            // Random animation duration and delay
+            const duration = Math.random() * 20 + 10;
+            const delay = Math.random() * 10;
+            particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+            
+            container.appendChild(particle);
+        }
+    </script>
+</body>
+</html> 

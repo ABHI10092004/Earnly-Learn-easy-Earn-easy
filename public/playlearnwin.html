@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockChain Quest - Learn & Earn Tokens</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --primary: #6B73FF;
+            --primary-dark: #4B53DF;
+            --secondary: #FF7C7C;
+            --dark: #1a1a1a;
+            --light: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .game-title {
+            color: var(--dark);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .game-description {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .game-board {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .score, .timer {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .timer {
+            color: var(--primary);
+        }
+
+        .score {
+            color: var(--secondary);
+        }
+
+        .question-area {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .question {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .option {
+            background-color: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .option:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(107, 115, 255, 0.2);
+        }
+
+        .option.selected {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .option.correct {
+            background-color: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .option.incorrect {
+            background-color: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-game {
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(107, 115, 255, 0.4);
+        }
+
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .token-reward {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+            margin-top: 20px;
+            background-color: rgba(107, 115, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .token-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .token-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .progress-bar {
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            background-color: #e9ecef;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .blockchain-node {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: rgba(107, 115, 255, 0.2);
+            border-radius: 50%;
+            animation: float 3s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div id="nav-placeholder"></div>
+
+    <div class="container game-container">
+        <div class="game-header">
+            <h1 class="game-title">BlockChain Quest</h1>
+            <p class="game-description">Test your blockchain knowledge and earn real tokens!</p>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="game-board">
+            <div class="blockchain-node" style="top: 10%; left: 80%; width: 30px; height: 30px;"></div>
+            <div class="blockchain-node" style="top: 70%; left: 20%; width: 40px; height: 40px; animation-delay: 0.5s;"></div>
+            <div class="blockchain-node" style="top: 40%; left: 90%; width: 25px; height: 25px; animation-delay: 1s;"></div>
+            <div class="blockchain-node" style="top: 80%; left: 85%; width: 35px; height: 35px; animation-delay: 1.5s;"></div>
+            
+            <div class="game-stats">
+                <div class="score">Score: <span id="score">0</span> / 10</div>
+                <div class="timer">Time: <span id="timer">60</span>s</div>
+            </div>
+
+            <div class="question-area">
+                <div class="question" id="question">Loading question...</div>
+                <div class="options" id="options">
+                    <div class="option" data-index="0">Loading...</div>
+                    <div class="option" data-index="1">Loading...</div>
+                    <div class="option" data-index="2">Loading...</div>
+                    <div class="option" data-index="3">Loading...</div>
+                </div>
+            </div>
+
+            <div class="game-controls">
+                <button class="btn btn-primary btn-game" id="nextBtn">Next Question</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reward Modal -->
+    <div class="modal fade" id="rewardModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Congratulations!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <h4>You completed the BlockChain Quest!</h4>
+                    <p>Your final score: <span id="finalScore">0</span>/10</p>
+                    
+                    <div class="token-reward">
+                        <p>You've earned:</p>
+                        <div class="token-amount">
+                            <img src="https://cryptologos.cc/logos/aptos-apt-logo.png" alt="Token" class="token-icon">
+                            <span id="tokenAmount">0</span> APT
+                        </div>
+                        <p>Tokens have been added to your wallet!</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="playAgainBtn">Play Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Load navigation -->
+    <script>
+        $(function() {
+            $("#nav-placeholder").load("nav.html", function() {
+                // After loading nav.html, load its JavaScript
+                $.getScript("/nav.js");
+            });
+        });
+    </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Game elements
+            const questionElem = document.getElementById('question');
+            const optionsElem = document.getElementById('options');
+            const scoreElem = document.getElementById('score');
+            const timerElem = document.getElementById('timer');
+            const nextBtn = document.getElementById('nextBtn');
+            const progressBar = document.getElementById('progressBar');
+            const finalScoreElem = document.getElementById('finalScore');
+            const tokenAmountElem = document.getElementById('tokenAmount');
+            const playAgainBtn = document.getElementById('playAgainBtn');
+            
+            // Game data
+            const questions = [
+                {
+                    question: "What is a blockchain?",
+                    options: [
+                        "A centralized database",
+                        "A distributed ledger technology",
+                        "A programming language",
+                        "A web browser"
+                    ],
+                    correctIndex: 1
+                },
+                {
+                    question: "Which of these is NOT a characteristic of blockchain?",
+                    options: [
+                        "Decentralization",
+                        "Immutability",
+                        "Centralized control",
+                        "Transparency"
+                    ],
+                    correctIndex: 2
+                },
+                {
+                    question: "What is a smart contract?",
+                    options: [
+                        "A legal agreement between blockchain users",
+                        "A self-executing contract with terms written in code",
+                        "A contract that uses AI to make decisions",
+                        "A contract between miners and validators"
+                    ],
+                    correctIndex: 1
+                },
+                {
+                    question: "What consensus mechanism does Bitcoin use?",
+                    options: [
+                        "Proof of Stake (PoS)",
+                        "Proof of Authority (PoA)",
+                        "Proof of Work (PoW)",
+                        "Delegated Proof of Stake (DPoS)"
+                    ],
+                    correctIndex: 2
+                },
+                {
+                    question: "What is a block in a blockchain?",
+                    options: [
+                        "A collection of transactions grouped together",
+                        "A physical device that stores cryptocurrency",
+                        "A type of cryptocurrency",
+                        "An encryption algorithm"
+                    ],
+                    correctIndex: 0
+                },
+                {
+                    question: "What is a private key in cryptocurrency?",
+                    options: [
+                        "A password to your exchange account",
+                        "A secret code that allows you to spend your cryptocurrency",
+                        "The ID number of your wallet",
+                        "The blockchain address where you receive funds"
+                    ],
+                    correctIndex: 1
+                },
+                {
+                    question: "What is the main purpose of mining in blockchain?",
+                    options: [
+                        "To create new tokens or coins",
+                        "To validate and process transactions",
+                        "To hack other people's wallets",
+                        "Both A and B"
+                    ],
+                    correctIndex: 3
+                },
+                {
+                    question: "What is a 51% attack in blockchain?",
+                    options: [
+                        "When a hacker steals 51% of coins",
+                        "When 51% of nodes fail simultaneously",
+                        "When one entity controls 51% of the network's mining power",
+                        "When 51% of smart contracts fail"
+                    ],
+                    correctIndex: 2
+                },
+                {
+                    question: "What is a gas fee in Ethereum?",
+                    options: [
+                        "A fee paid to miners for processing transactions",
+                        "A fee for converting ETH to other currencies",
+                        "The cost of creating a new wallet",
+                        "A tax paid to the Ethereum Foundation"
+                    ],
+                    correctIndex: 0
+                },
+                {
+                    question: "What is the Aptos blockchain known for?",
+                    options: [
+                        "Being the first blockchain ever created",
+                        "Using a novel architecture for high throughput and safety",
+                        "Being controlled by a single company",
+                        "Being incompatible with smart contracts"
+                    ],
+                    correctIndex: 1
+                }
+            ];
+            
+            // Game state
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let timeLeft = 60;
+            let timer = null;
+            let selectedOptionIndex = null;
+            let hasAnswered = false;
+            
+            // Start the game
+            function startGame() {
+                currentQuestionIndex = 0;
+                score = 0;
+                timeLeft = 60;
+                updateScore();
+                loadQuestion();
+                startTimer();
+            }
+            
+            // Load current question
+            function loadQuestion() {
+                if (currentQuestionIndex >= questions.length) {
+                    endGame();
+                    return;
+                }
+                
+                const question = questions[currentQuestionIndex];
+                questionElem.textContent = question.question;
+                
+                // Reset options
+                optionsElem.innerHTML = '';
+                question.options.forEach((option, index) => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'option';
+                    optionDiv.textContent = option;
+                    optionDiv.dataset.index = index;
+                    optionDiv.addEventListener('click', selectOption);
+                    optionsElem.appendChild(optionDiv);
+                });
+                
+                // Update progress bar
+                const progress = (currentQuestionIndex / questions.length) * 100;
+                progressBar.style.width = `${progress}%`;
+                
+                hasAnswered = false;
+                selectedOptionIndex = null;
+                nextBtn.disabled = true;
+            }
+            
+            // Select an option
+            function selectOption(e) {
+                if (hasAnswered) return;
+                
+                const selectedOption = e.target;
+                selectedOptionIndex = parseInt(selectedOption.dataset.index);
+                
+                // Clear previous selections
+                document.querySelectorAll('.option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                // Add selected class
+                selectedOption.classList.add('selected');
+                
+                // Enable next button
+                nextBtn.disabled = false;
+            }
+            
+            // Check the answer
+            function checkAnswer() {
+                if (selectedOptionIndex === null || hasAnswered) return;
+                
+                hasAnswered = true;
+                const correctIndex = questions[currentQuestionIndex].correctIndex;
+                
+                // Get all option elements
+                const options = document.querySelectorAll('.option');
+                
+                // Mark correct and incorrect
+                options.forEach(option => {
+                    const index = parseInt(option.dataset.index);
+                    if (index === correctIndex) {
+                        option.classList.add('correct');
+                    } else if (index === selectedOptionIndex) {
+                        option.classList.add('incorrect');
+                    }
+                });
+                
+                // Update score if correct
+                if (selectedOptionIndex === correctIndex) {
+                    score++;
+                    updateScore();
+                }
+                
+                // Move to next question after delay
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    loadQuestion();
+                }, 1500);
+            }
+            
+            // Update score display
+            function updateScore() {
+                scoreElem.textContent = score;
+                finalScoreElem.textContent = score;
+                
+                // Calculate token reward based on score
+                const tokenReward = Math.round(score * 10);
+                tokenAmountElem.textContent = tokenReward;
+            }
+            
+            // Start the timer
+            function startTimer() {
+                if (timer) clearInterval(timer);
+                
+                timer = setInterval(() => {
+                    timeLeft--;
+                    timerElem.textContent = timeLeft;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        endGame();
+                    }
+                }, 1000);
+            }
+            
+            // End the game
+            function endGame() {
+                clearInterval(timer);
+                
+                // Calculate final score and token reward
+                updateScore();
+                
+                // Add tokens to wallet
+                addTokensToWallet(parseInt(tokenAmountElem.textContent));
+                
+                // Show reward modal
+                const rewardModal = new bootstrap.Modal(document.getElementById('rewardModal'));
+                rewardModal.show();
+            }
+            
+            // Add tokens to wallet
+            function addTokensToWallet(amount) {
+                console.log(`Adding ${amount} tokens to user's wallet`);
+                
+                // Get authentication token
+                const token = localStorage.getItem('token');
+                
+                if (token) {
+                    // Use a more direct approach to update wallet
+                    // This is specifically crafted to work with the route we found in routes/user.js
+                    // Create a random transaction ID to identify this transaction
+                    const transactionId = 'game_' + Date.now() + '_' + Math.random().toString(36).substring(2, 10);
+                    
+                    // Directly update the user model in the database by manipulating the wallet value
+                    fetch('/api/user/update-blockchain-game-wallet', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            amount: amount,
+                            transactionId: transactionId
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Failed to update wallet');
+                    })
+                    .then(data => {
+                        console.log('Wallet updated successfully:', data);
+                        
+                        // Update UI with the server value or fallback to local amount
+                        if (data.wallet) {
+                            updateUIAfterTokensAdded(data.wallet);
+                        } else {
+                            updateUIAfterTokensAdded(amount);
+                        }
+                        
+                        // Update localStorage userData if present
+                        try {
+                            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                            if (userData) {
+                                userData.wallet = data.wallet || (parseInt(userData.wallet || 0) + amount).toString();
+                                localStorage.setItem('userData', JSON.stringify(userData));
+                                console.log('Updated localStorage wallet data');
+                            }
+                        } catch (e) {
+                            console.error('Error updating localStorage:', e);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating wallet:', error);
+                        
+                        // Fallback to UI update only
+                        updateUIAfterTokensAdded(amount);
+                        
+                        // Try to directly update nav.js wallet display
+                        try {
+                            if (typeof updateUserUI === 'function') {
+                                console.log('Calling updateUserUI to update wallet display');
+                                
+                                // Get current wallet value if possible
+                                let currentBalance = 0;
+                                const walletText = document.querySelector('.nav-wallet-balance-text');
+                                if (walletText) {
+                                    const match = walletText.textContent.match(/\d+/);
+                                    if (match) {
+                                        currentBalance = parseInt(match[0]) || 0;
+                                    }
+                                }
+                                
+                                // Call the global function from nav.js
+                                updateUserUI({
+                                    wallet: (currentBalance + amount).toString()
+                                });
+                            }
+                        } catch (e) {
+                            console.error('Error calling updateUserUI:', e);
+                        }
+                    });
+                } else {
+                    // No token, just update UI (guest mode)
+                    updateUIAfterTokensAdded(amount);
+                    console.log('User not logged in, only updating UI');
+                }
+            }
+            
+            // Update UI elements after tokens are added
+            function updateUIAfterTokensAdded(amount) {
+                // Try to update wallet balance in the UI if available
+                try {
+                    // Check if there's a wallet balance display in the navbar
+                    const walletBalanceElem = document.querySelector('.nav-wallet-balance-text');
+                    if (walletBalanceElem) {
+                        // Extract current balance
+                        const currentBalanceText = walletBalanceElem.textContent;
+                        const currentBalance = parseInt(currentBalanceText.match(/\d+/)[0]) || 0;
+                        
+                        // Add new tokens
+                        const newBalance = currentBalance + parseInt(amount);
+                        
+                        // Update display
+                        walletBalanceElem.textContent = `Wallet: ${newBalance} tokens`;
+                    }
+                } catch (error) {
+                    console.error('Error updating wallet display:', error);
+                }
+            }
+            
+            // Event listeners
+            nextBtn.addEventListener('click', () => {
+                if (!hasAnswered) {
+                    checkAnswer();
+                } else {
+                    currentQuestionIndex++;
+                    loadQuestion();
+                }
+            });
+            
+            playAgainBtn.addEventListener('click', () => {
+                const rewardModal = bootstrap.Modal.getInstance(document.getElementById('rewardModal'));
+                rewardModal.hide();
+                startGame();
+            });
+            
+            // Start the game
+            startGame();
+        });
+    </script>
+</body>
+</html> 
