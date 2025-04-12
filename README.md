@@ -61,34 +61,39 @@ The project is organized into the following key directories:
 
 ![image](https://github.com/user-attachments/assets/9be0c38a-cc8a-49c7-b17d-e9ed3f743d64)
 
+![image](https://github.com/user-attachments/assets/fa6317f7-504f-42e9-9e5b-e23ac9a10278)
 
 #### 2. Course Management
 - Catalog of blockchain-focused courses with filtering capabilities
 - Course details pages with progress tracking
 - Module-based learning structure with different content types (video, text, quiz)
 
-![Course Management](https://via.placeholder.com/600x300?text=Course+Management)
+![image](https://github.com/user-attachments/assets/bcc96ec7-c259-4f08-b412-15c39b456667)
+
+![image](https://github.com/user-attachments/assets/7862cf12-0eac-4c20-b561-febef8809e26)
 
 #### 3. Gamification Elements
 - Token rewards for completing courses and modules
 - Progress tracking with visual indicators
 - Leaderboards to promote healthy competition
 
-![Gamification Elements](https://via.placeholder.com/600x300?text=Gamification+Elements)
+![image](https://github.com/user-attachments/assets/67182a6a-006b-47c0-ac74-4af6aeaf314c)
+
 
 #### 4. Wallet Integration
 - Native wallet functionality to store earned tokens
 - Transaction history for viewing reward earnings
 - Future transfer capabilities (planned)
 
-![Wallet Integration](https://via.placeholder.com/600x300?text=Wallet+Integration)
+![image](https://github.com/user-attachments/assets/bc46fe72-fc86-48b1-a7a0-410fe431fbbf)
+
 
 #### 5. Dashboard
 - Personalized dashboard showing enrolled courses
 - Progress statistics and activity feed
 - Earnings summary and certificates earned
 
-![Dashboard Interface](https://via.placeholder.com/600x300?text=Dashboard+Interface)
+![image](https://github.com/user-attachments/assets/8c0c4340-e265-4fd4-b2a3-cededfc59aff)
 
 ### Architecture & Implementation
 
