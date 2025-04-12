@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earnly Admin - Quizzes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <!-- Will be populated by admin-layout.js -->
+        </div>
+        
+        <!-- Content Area -->
+        <div class="admin-content">
+            <!-- Header -->
+            <div class="header" id="header">
+                <!-- Will be populated by admin-layout.js -->
+            </div>
+            
+            <!-- Main Content -->
+            <div class="main-content">
+                <div id="alertContainer"></div>
+                
+                <!-- Quiz Management Header -->
+                <div class="content-header">
+                    <div>
+                        <h1 class="content-title">Quizzes</h1>
+                        <p class="text-muted">Manage earning quizzes and their questions</p>
+                    </div>
+                    <button class="btn btn-primary" id="addQuizBtn">
+                        <i class="fas fa-plus me-2"></i> Add New Quiz
+                    </button>
+                </div>
+                
+                <!-- Filters -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="searchQuiz" placeholder="Search quizzes...">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">All Status</option>
+                                    <option value="true">Active</option>
+                                    <option value="false">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="sortFilter">
+                                    <option value="createdAt:desc">Newest First</option>
+                                    <option value="createdAt:asc">Oldest First</option>
+                                    <option value="title:asc">Title A-Z</option>
+                                    <option value="title:desc">Title Z-A</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <button class="btn btn-outline-secondary" id="applyFilters">
+                                    <i class="fas fa-filter me-2"></i> Apply Filters
+                                </button>
+                                <button class="btn btn-outline-secondary ms-2" id="resetFilters">
+                                    <i class="fas fa-times me-2"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quizzes List -->
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Quiz Title</th>
+                                        <th>Description</th>
+                                        <th>Questions</th>
+                                        <th>Reward</th>
+                                        <th>Status</th>
+                                        <th>Completions</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="quizTableBody">
+                                    <!-- Will be populated dynamically -->
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4">
+                                            <div class="loader"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-muted" id="paginationInfo">Showing 0 of 0 quizzes</div>
+                            <ul class="pagination mb-0" id="quizPagination">
+                                <!-- Will be populated dynamically -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Quiz Modal -->
+    <div class="modal fade" id="quizModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="quizModalLabel">Add New Quiz</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="quizForm">
+                        <input type="hidden" id="quizId">
+                        
+                        <div class="mb-3">
+                            <label for="quizTitle" class="form-label">Quiz Title</label>
+                            <input type="text" class="form-control" id="quizTitle" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="quizDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="quizDescription" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="quizReward" class="form-label">Reward Amount</label>
+                                <input type="number" class="form-control" id="quizReward" min="1" value="10" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="quizTimeLimit" class="form-label">Time Limit (minutes)</label>
+                                <input type="number" class="form-control" id="quizTimeLimit" min="1" value="5" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="quizPassingScore" class="form-label">Passing Score (%)</label>
+                                <input type="number" class="form-control" id="quizPassingScore" min="1" max="100" value="70" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="quizIsActive" checked>
+                                <label class="form-check-label" for="quizIsActive">Quiz is active</label>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <h5 class="mb-3">Questions</h5>
+                        <div id="questionsContainer">
+                            <!-- Questions will be added here dynamically -->
+                        </div>
+                        
+                        <button type="button" class="btn btn-outline-primary w-100 mt-3" id="addQuestionBtn">
+                            <i class="fas fa-plus me-2"></i> Add Question
+                        </button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveQuizBtn">Save Quiz</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- View Quiz Modal -->
+    <div class="modal fade" id="viewQuizModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewQuizModalLabel">Quiz Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="quizDetails">
+                        <!-- Quiz details will be displayed here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="editQuizFromViewBtn">Edit Quiz</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteQuizModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this quiz? This action cannot be undone.</p>
+                    <p class="text-danger"><strong>Note:</strong> All user progress and completion records for this quiz will also be removed.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete Quiz</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="admin-layout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // These variables will be used across functions
+        let quizzes = [];
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentQuizId = null;
+        let questionCounter = 0;
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize admin layout
+            const adminInfo = initAdminLayout('quizzes');
+            if (!adminInfo) return;
+            
+            // Initialize page
+            setupEventListeners();
+            loadQuizzes();
+        });
+        
+        // Setup all event listeners
+        function setupEventListeners() {
+            // Filter and search
+            document.getElementById('applyFilters').addEventListener('click', () => {
+                currentPage = 1;
+                loadQuizzes();
+            });
+            
+            document.getElementById('resetFilters').addEventListener('click', () => {
+                document.getElementById('searchQuiz').value = '';
+                document.getElementById('statusFilter').value = '';
+                document.getElementById('sortFilter').value = 'createdAt:desc';
+                currentPage = 1;
+                loadQuizzes();
+            });
+            
+            // Add quiz button
+            document.getElementById('addQuizBtn').addEventListener('click', () => {
+                resetQuizForm();
+                document.getElementById('quizModalLabel').textContent = 'Add New Quiz';
+                const quizModal = new bootstrap.Modal(document.getElementById('quizModal'));
+                quizModal.show();
+            });
+            
+            // Add question button
+            document.getElementById('addQuestionBtn').addEventListener('click', addQuestionField);
+            
+            // Save quiz button
+            document.getElementById('saveQuizBtn').addEventListener('click', saveQuiz);
+            
+            // Edit quiz from view modal
+            document.getElementById('editQuizFromViewBtn').addEventListener('click', () => {
+                const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewQuizModal'));
+                viewModal.hide();
+                
+                const quiz = quizzes.find(q => q._id === currentQuizId);
+                if (quiz) {
+                    fillQuizForm(quiz);
+                    document.getElementById('quizModalLabel').textContent = 'Edit Quiz';
+                    const quizModal = new bootstrap.Modal(document.getElementById('quizModal'));
+                    quizModal.show();
+                }
+            });
+            
+            // Confirm delete button
+            document.getElementById('confirmDeleteBtn').addEventListener('click', deleteQuiz);
+        }
+        
+        // Load quizzes from API with filters and pagination
+        async function loadQuizzes() {
+            try {
+                const token = localStorage.getItem('adminToken');
+                if (!token) throw new Error('Authentication token is missing');
+                
+                // Get filter values
+                const search = document.getElementById('searchQuiz').value;
+                const isActive = document.getElementById('statusFilter').value;
+                const sortBy = document.getElementById('sortFilter').value;
+                
+                // Show loading indicator
+                document.getElementById('quizTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <div class="loader"></div>
+                        </td>
+                    </tr>
+                `;
+                
+                // Build query parameters
+                let queryParams = new URLSearchParams();
+                queryParams.append('page', currentPage);
+                queryParams.append('limit', 10);
+                
+                if (search) queryParams.append('search', search);
+                if (isActive) queryParams.append('isActive', isActive);
+                if (sortBy) queryParams.append('sortBy', sortBy);
+                
+                // Fetch quizzes
+                const response = await fetch(`/api/admin/quizzes?${queryParams.toString()}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch quizzes');
+                
+                const data = await response.json();
+                quizzes = data.quizzes;
+                
+                // Update pagination
+                if (data.pagination) {
+                    totalPages = data.pagination.pages;
+                    updatePagination(data.pagination);
+                }
+                
+                // Render quizzes
+                renderQuizzes(quizzes);
+                
+            } catch (error) {
+                console.error('Error loading quizzes:', error);
+                showAlert('danger', 'Failed to load quizzes. Please try again.', true);
+                
+                // Show error in table
+                document.getElementById('quizTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Failed to load quizzes. Please try again.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Render the quizzes table
+        function renderQuizzes(quizzes) {
+            const tableBody = document.getElementById('quizTableBody');
+            
+            if (!quizzes || quizzes.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            <i class="fas fa-search me-2"></i>
+                            No quizzes found. Try different filters or create a new quiz.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            quizzes.forEach(quiz => {
+                const questionCount = quiz.questions ? quiz.questions.length : 0;
+                const statusBadge = quiz.isActive ? 
+                    '<span class="badge bg-success">Active</span>' : 
+                    '<span class="badge bg-secondary">Inactive</span>';
+                
+                html += `
+                    <tr>
+                        <td>
+                            <div class="fw-medium">${quiz.title}</div>
+                            <div class="text-muted small">Created ${formatDate(quiz.createdAt)}</div>
+                        </td>
+                        <td>${truncateText(quiz.description, 50)}</td>
+                        <td>${questionCount}</td>
+                        <td>${quiz.reward}</td>
+                        <td>${statusBadge}</td>
+                        <td>${quiz.completions || 0}</td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    Actions
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item view-quiz" href="#" data-id="${quiz._id}">
+                                        <i class="fas fa-eye me-2"></i> View
+                                    </a></li>
+                                    <li><a class="dropdown-item edit-quiz" href="#" data-id="${quiz._id}">
+                                        <i class="fas fa-edit me-2"></i> Edit
+                                    </a></li>
+                                    <li><a class="dropdown-item toggle-quiz-status" href="#" data-id="${quiz._id}" data-active="${!quiz.isActive}">
+                                        <i class="fas fa-${quiz.isActive ? 'toggle-off' : 'toggle-on'} me-2"></i> 
+                                        ${quiz.isActive ? 'Deactivate' : 'Activate'}
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger delete-quiz" href="#" data-id="${quiz._id}">
+                                        <i class="fas fa-trash me-2"></i> Delete
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = html;
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.view-quiz').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    viewQuiz(e.target.closest('a').dataset.id);
+                });
+            });
+            
+            document.querySelectorAll('.edit-quiz').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    editQuiz(e.target.closest('a').dataset.id);
+                });
+            });
+            
+            document.querySelectorAll('.toggle-quiz-status').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const el = e.target.closest('a');
+                    toggleQuizStatus(el.dataset.id, el.dataset.active === 'true');
+                });
+            });
+            
+            document.querySelectorAll('.delete-quiz').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    confirmDeleteQuiz(e.target.closest('a').dataset.id);
+                });
+            });
+        }
+        
+        // Update pagination controls
+        function updatePagination(pagination) {
+            const paginationEl = document.getElementById('quizPagination');
+            const paginationInfo = document.getElementById('paginationInfo');
+            
+            // Update info text
+            const start = (pagination.page - 1) * pagination.limit + 1;
+            const end = Math.min(pagination.page * pagination.limit, pagination.total);
+            paginationInfo.textContent = `Showing ${start}-${end} of ${pagination.total} quizzes`;
+            
+            // Generate pagination buttons
+            let html = '';
+            
+            // Previous button
+            html += `
+                <li class="page-item ${pagination.page === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${pagination.page - 1}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            `;
+            
+            // Page numbers
+            const maxPages = 5;
+            let startPage = Math.max(1, pagination.page - Math.floor(maxPages / 2));
+            let endPage = Math.min(pagination.pages, startPage + maxPages - 1);
+            
+            if (endPage - startPage + 1 < maxPages) {
+                startPage = Math.max(1, endPage - maxPages + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                html += `
+                    <li class="page-item ${pagination.page === i ? 'active' : ''}">
+                        <a class="page-link" href="#" data-page="${i}">${i}</a>
+                    </li>
+                `;
+            }
+            
+            // Next button
+            html += `
+                <li class="page-item ${pagination.page === pagination.pages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${pagination.page + 1}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            `;
+            
+            paginationEl.innerHTML = html;
+            
+            // Add event listeners to pagination buttons
+            document.querySelectorAll('#quizPagination .page-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = parseInt(e.target.closest('a').dataset.page);
+                    if (page !== currentPage) {
+                        currentPage = page;
+                        loadQuizzes();
+                        // Scroll to top of the table
+                        document.querySelector('.table').scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+        }
+        
+        // Helper function to format dates
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric'
+            });
+        }
+        
+        // Helper function to truncate text
+        function truncateText(text, maxLength) {
+            if (!text) return '';
+            return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+        }
+        
+        // Show an alert message
+        function showAlert(type, message, autoClose = true) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertId = 'alert-' + Date.now();
+            
+            const alertHtml = `
+                <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            
+            alertContainer.innerHTML = alertHtml;
+            
+            if (autoClose) {
+                setTimeout(() => {
+                    const alert = document.getElementById(alertId);
+                    if (alert) {
+                        alert.classList.remove('show');
+                        setTimeout(() => {
+                            alert.remove();
+                        }, 300);
+                    }
+                }, 5000);
+            }
+        }
+        
+        // View quiz details
+        function viewQuiz(quizId) {
+            const quiz = quizzes.find(q => q._id === quizId);
+            if (!quiz) return;
+            
+            currentQuizId = quizId;
+            
+            // Format the quiz details for display
+            const questionsHtml = quiz.questions.map((q, index) => {
+                const optionsHtml = q.options.map((opt, optIndex) => {
+                    const isCorrect = optIndex === q.correctAnswer;
+                    return `
+                        <li class="list-group-item ${isCorrect ? 'list-group-item-success' : ''}">
+                            ${isCorrect ? '<i class="fas fa-check-circle text-success me-2"></i>' : ''}
+                            ${opt}
+                        </li>
+                    `;
+                }).join('');
+                
+                return `
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Question ${index + 1}</h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">${q.question}</p>
+                            <h6 class="mt-3 mb-2">Options:</h6>
+                            <ul class="list-group">
+                                ${optionsHtml}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Generate the full details HTML
+            const detailsHtml = `
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <h4>${quiz.title}</h4>
+                        <p class="text-muted">${quiz.description}</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <span class="badge bg-${quiz.isActive ? 'success' : 'secondary'} mb-2">
+                            ${quiz.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                        <div class="text-muted small">Created: ${formatDate(quiz.createdAt)}</div>
+                        <div class="text-muted small">Last Updated: ${formatDate(quiz.updatedAt)}</div>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="mb-0">${quiz.reward}</h5>
+                                <div class="text-muted">Reward Amount</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="mb-0">${quiz.timeLimit} min</h5>
+                                <div class="text-muted">Time Limit</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="mb-0">${quiz.passingScore}%</h5>
+                                <div class="text-muted">Passing Score</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h5 class="mb-3">Questions (${quiz.questions.length})</h5>
+                ${questionsHtml}
+            `;
+            
+            // Display the details in the modal
+            document.getElementById('quizDetails').innerHTML = detailsHtml;
+            document.getElementById('viewQuizModalLabel').textContent = `Quiz Details: ${quiz.title}`;
+            
+            const viewModal = new bootstrap.Modal(document.getElementById('viewQuizModal'));
+            viewModal.show();
+        }
+        
+        // Edit quiz
+        function editQuiz(quizId) {
+            const quiz = quizzes.find(q => q._id === quizId);
+            if (!quiz) return;
+            
+            fillQuizForm(quiz);
+            document.getElementById('quizModalLabel').textContent = 'Edit Quiz';
+            const quizModal = new bootstrap.Modal(document.getElementById('quizModal'));
+            quizModal.show();
+        }
+        
+        // Fill the quiz form with data
+        function fillQuizForm(quiz) {
+            // Reset form first
+            resetQuizForm();
+            
+            // Set quiz ID
+            currentQuizId = quiz._id;
+            document.getElementById('quizId').value = quiz._id;
+            
+            // Fill basic details
+            document.getElementById('quizTitle').value = quiz.title;
+            document.getElementById('quizDescription').value = quiz.description;
+            document.getElementById('quizReward').value = quiz.reward;
+            document.getElementById('quizTimeLimit').value = quiz.timeLimit;
+            document.getElementById('quizPassingScore').value = quiz.passingScore;
+            document.getElementById('quizIsActive').checked = quiz.isActive;
+            
+            // Add question fields for each question
+            if (quiz.questions && quiz.questions.length > 0) {
+                quiz.questions.forEach(question => {
+                    addQuestionField(null, question);
+                });
+            } else {
+                // Add at least one empty question field
+                addQuestionField();
+            }
+        }
+        
+        // Reset quiz form
+        function resetQuizForm() {
+            // Clear the form fields
+            document.getElementById('quizId').value = '';
+            document.getElementById('quizTitle').value = '';
+            document.getElementById('quizDescription').value = '';
+            document.getElementById('quizReward').value = '10';
+            document.getElementById('quizTimeLimit').value = '5';
+            document.getElementById('quizPassingScore').value = '70';
+            document.getElementById('quizIsActive').checked = true;
+            
+            // Reset questions
+            document.getElementById('questionsContainer').innerHTML = '';
+            questionCounter = 0;
+            currentQuizId = null;
+            
+            // Add one empty question field
+            addQuestionField();
+        }
+        
+        // Add a new question field to the form
+        function addQuestionField(event = null, questionData = null) {
+            if (event) event.preventDefault();
+            
+            const container = document.getElementById('questionsContainer');
+            const questionId = questionCounter++;
+            
+            const questionText = questionData ? questionData.question : '';
+            const options = questionData ? questionData.options : ['', '', '', ''];
+            const correctAnswer = questionData ? questionData.correctAnswer : 0;
+            
+            // Generate options inputs
+            let optionsHtml = '';
+            options.forEach((option, index) => {
+                optionsHtml += `
+                    <div class="input-group mb-2">
+                        <div class="input-group-text">
+                            <input class="form-check-input mt-0" type="radio" name="correctAnswer_${questionId}" 
+                                value="${index}" ${index === correctAnswer ? 'checked' : ''}>
+                        </div>
+                        <input type="text" class="form-control" placeholder="Option ${index + 1}" 
+                            name="option_${questionId}_${index}" required value="${option}">
+                        <button class="btn btn-outline-danger remove-option" type="button"
+                            ${index < 2 ? 'disabled' : ''}>
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            
+            // Create the question card
+            const questionCard = document.createElement('div');
+            questionCard.className = 'card mb-4 question-card';
+            questionCard.id = `question_${questionId}`;
+            questionCard.innerHTML = `
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Question ${container.children.length + 1}</h6>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-question"
+                        ${container.children.length === 0 ? 'disabled' : ''}>
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Question Text</label>
+                        <input type="text" class="form-control" name="question_${questionId}" 
+                            placeholder="Enter question text" required value="${questionText}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Options (select the correct answer)</label>
+                        <div class="options-container" id="options_${questionId}">
+                            ${optionsHtml}
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary add-option mt-2"
+                            ${options.length >= 6 ? 'disabled' : ''}>
+                            <i class="fas fa-plus me-1"></i> Add Option
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(questionCard);
+            
+            // Add event listeners for the new question card
+            const newCard = document.getElementById(`question_${questionId}`);
+            
+            // Remove question button
+            newCard.querySelector('.remove-question').addEventListener('click', function() {
+                if (container.children.length > 1) {
+                    questionCard.remove();
+                    // Update question numbers
+                    updateQuestionNumbers();
+                }
+            });
+            
+            // Add option button
+            newCard.querySelector('.add-option').addEventListener('click', function() {
+                const optionsContainer = document.getElementById(`options_${questionId}`);
+                const optionCount = optionsContainer.querySelectorAll('.input-group').length;
+                
+                if (optionCount < 6) {
+                    const newOption = document.createElement('div');
+                    newOption.className = 'input-group mb-2';
+                    newOption.innerHTML = `
+                        <div class="input-group-text">
+                            <input class="form-check-input mt-0" type="radio" name="correctAnswer_${questionId}" value="${optionCount}">
+                        </div>
+                        <input type="text" class="form-control" placeholder="Option ${optionCount + 1}" 
+                            name="option_${questionId}_${optionCount}" required>
+                        <button class="btn btn-outline-danger remove-option" type="button">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    
+                    optionsContainer.appendChild(newOption);
+                    
+                    // Add event listener to the new remove option button
+                    newOption.querySelector('.remove-option').addEventListener('click', function() {
+                        if (optionsContainer.children.length > 2) {
+                            newOption.remove();
+                            // Update option indices
+                            updateOptionIndices(optionsContainer, questionId);
+                        }
+                    });
+                    
+                    // Disable add option button if we reached the max
+                    if (optionsContainer.children.length >= 6) {
+                        this.disabled = true;
+                    }
+                }
+            });
+            
+            // Remove option buttons
+            newCard.querySelectorAll('.remove-option').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const optionsContainer = document.getElementById(`options_${questionId}`);
+                    if (optionsContainer.children.length > 2) {
+                        this.closest('.input-group').remove();
+                        // Update option indices
+                        updateOptionIndices(optionsContainer, questionId);
+                        // Enable add option button
+                        newCard.querySelector('.add-option').disabled = false;
+                    }
+                });
+            });
+        }
+        
+        // Update question numbers after removing a question
+        function updateQuestionNumbers() {
+            const questions = document.querySelectorAll('.question-card');
+            questions.forEach((card, index) => {
+                card.querySelector('.card-header h6').textContent = `Question ${index + 1}`;
+                // Enable/disable remove buttons based on count
+                card.querySelector('.remove-question').disabled = questions.length <= 1;
+            });
+        }
+        
+        // Update option indices after adding/removing options
+        function updateOptionIndices(optionsContainer, questionId) {
+            const options = optionsContainer.querySelectorAll('.input-group');
+            options.forEach((option, index) => {
+                // Update radio button value
+                option.querySelector('input[type="radio"]').value = index;
+                
+                // Update input name and placeholder
+                const input = option.querySelector('input[type="text"]');
+                input.name = `option_${questionId}_${index}`;
+                input.placeholder = `Option ${index + 1}`;
+                
+                // Enable/disable remove buttons based on count
+                option.querySelector('.remove-option').disabled = options.length <= 2;
+            });
+        }
+        
+        // Toggle quiz active status
+        async function toggleQuizStatus(quizId, setActive) {
+            try {
+                const token = localStorage.getItem('adminToken');
+                if (!token) throw new Error('Authentication token is missing');
+                
+                const response = await fetch(`/api/admin/quizzes/${quizId}/toggle-active`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ isActive: setActive })
+                });
+                
+                if (!response.ok) throw new Error('Failed to update quiz status');
+                
+                const data = await response.json();
+                
+                // Show success message
+                showAlert('success', `Quiz ${setActive ? 'activated' : 'deactivated'} successfully`);
+                
+                // Reload quizzes to reflect the changes
+                loadQuizzes();
+                
+            } catch (error) {
+                console.error('Error toggling quiz status:', error);
+                showAlert('danger', 'Failed to update quiz status. Please try again.');
+            }
+        }
+        
+        // Confirm delete quiz
+        function confirmDeleteQuiz(quizId) {
+            currentQuizId = quizId;
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteQuizModal'));
+            deleteModal.show();
+        }
+        
+        // Delete quiz
+        async function deleteQuiz() {
+            if (!currentQuizId) return;
+            
+            try {
+                const token = localStorage.getItem('adminToken');
+                if (!token) throw new Error('Authentication token is missing');
+                
+                const response = await fetch(`/api/admin/quizzes/${currentQuizId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to delete quiz');
+                
+                // Close the modal
+                const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteQuizModal'));
+                deleteModal.hide();
+                
+                // Show success message
+                showAlert('success', 'Quiz deleted successfully');
+                
+                // Reload quizzes
+                loadQuizzes();
+                
+            } catch (error) {
+                console.error('Error deleting quiz:', error);
+                showAlert('danger', 'Failed to delete quiz. Please try again.');
+            }
+        }
+        
+        // Save quiz (create or update)
+        async function saveQuiz() {
+            try {
+                // Validate the form
+                const form = document.getElementById('quizForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                // Get quiz data
+                const quizId = document.getElementById('quizId').value;
+                const title = document.getElementById('quizTitle').value;
+                const description = document.getElementById('quizDescription').value;
+                const reward = parseInt(document.getElementById('quizReward').value);
+                const timeLimit = parseInt(document.getElementById('quizTimeLimit').value);
+                const passingScore = parseInt(document.getElementById('quizPassingScore').value);
+                const isActive = document.getElementById('quizIsActive').checked;
+                
+                // Get questions
+                const questionCards = document.querySelectorAll('.question-card');
+                const questions = [];
+                
+                for (const card of questionCards) {
+                    const cardId = card.id.split('_')[1];
+                    const questionText = card.querySelector(`input[name="question_${cardId}"]`).value;
+                    
+                    // Get options and correct answer
+                    const options = [];
+                    const optionsInputs = card.querySelectorAll(`input[name^="option_${cardId}_"]`);
+                    optionsInputs.forEach(input => {
+                        options.push(input.value);
+                    });
+                    
+                    const correctAnswer = parseInt(card.querySelector(`input[name="correctAnswer_${cardId}"]:checked`).value);
+                    
+                    questions.push({
+                        question: questionText,
+                        options: options,
+                        correctAnswer: correctAnswer
+                    });
+                }
+                
+                // Validate questions
+                if (questions.length === 0) {
+                    showAlert('danger', 'You must add at least one question');
+                    return;
+                }
+                
+                for (const question of questions) {
+                    if (!question.question || question.options.length < 2) {
+                        showAlert('danger', 'All questions must have a question text and at least 2 options');
+                        return;
+                    }
+                    
+                    for (const option of question.options) {
+                        if (!option) {
+                            showAlert('danger', 'All options must have text');
+                            return;
+                        }
+                    }
+                }
+                
+                // Prepare the data
+                const quizData = {
+                    title,
+                    description,
+                    questions,
+                    reward,
+                    timeLimit,
+                    passingScore,
+                    isActive
+                };
+                
+                const token = localStorage.getItem('adminToken');
+                if (!token) throw new Error('Authentication token is missing');
+                
+                let url = '/api/admin/quizzes';
+                let method = 'POST';
+                
+                // If we're updating an existing quiz
+                if (quizId) {
+                    url = `/api/admin/quizzes/${quizId}`;
+                    method = 'PATCH';
+                }
+                
+                // Show loading state
+                const saveBtn = document.getElementById('saveQuizBtn');
+                const originalBtnText = saveBtn.innerHTML;
+                saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Saving...';
+                saveBtn.disabled = true;
+                
+                // Make API request
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(quizData)
+                });
+                
+                if (!response.ok) throw new Error('Failed to save quiz');
+                
+                const data = await response.json();
+                
+                // Close the modal
+                const quizModal = bootstrap.Modal.getInstance(document.getElementById('quizModal'));
+                quizModal.hide();
+                
+                // Show success message
+                showAlert('success', `Quiz ${quizId ? 'updated' : 'created'} successfully`);
+                
+                // Reload quizzes to reflect the changes
+                loadQuizzes();
+                
+            } catch (error) {
+                console.error('Error saving quiz:', error);
+                showAlert('danger', 'Failed to save quiz. Please try again.');
+            } finally {
+                // Reset button state
+                const saveBtn = document.getElementById('saveQuizBtn');
+                saveBtn.innerHTML = 'Save Quiz';
+                saveBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html> 

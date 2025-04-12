@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earnly Admin - Courses</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <!-- Will be populated by admin-layout.js -->
+        </div>
+        
+        <!-- Content Area -->
+        <div class="admin-content">
+            <!-- Header -->
+            <div class="header" id="header">
+                <!-- Will be populated by admin-layout.js -->
+            </div>
+            
+            <!-- Main Content -->
+            <div class="main-content">
+                <div id="alertContainer"></div>
+                
+                <!-- Course Management Header -->
+                <div class="content-header">
+                    <div>
+                        <h1 class="content-title">Courses</h1>
+                        <p class="text-muted">Manage educational courses and their modules</p>
+                    </div>
+                    <button class="btn btn-primary" id="addCourseBtn">
+                        <i class="fas fa-plus me-2"></i> Add New Course
+                    </button>
+                </div>
+                
+                <!-- Filters -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="searchCourse" placeholder="Search courses...">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="categoryFilter">
+                                    <option value="">All Categories</option>
+                                    <option value="Blockchain">Blockchain</option>
+                                    <option value="Cryptocurrency">Cryptocurrency</option>
+                                    <option value="DeFi">DeFi</option>
+                                    <option value="NFT">NFT</option>
+                                    <option value="Web3">Web3</option>
+                                    <option value="Trading">Trading</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="difficultyFilter">
+                                    <option value="">All Levels</option>
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate">Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <button class="btn btn-outline-secondary" id="applyFilters">
+                                    <i class="fas fa-filter me-2"></i> Apply Filters
+                                </button>
+                                <button class="btn btn-outline-secondary ms-2" id="resetFilters">
+                                    <i class="fas fa-times me-2"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Courses List -->
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Category</th>
+                                        <th>Difficulty</th>
+                                        <th>Modules</th>
+                                        <th>Enrollments</th>
+                                        <th>Rating</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="courseTableBody">
+                                    <!-- Will be populated dynamically -->
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4">
+                                            <div class="loader"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-muted" id="paginationInfo">Showing 0 of 0 courses</div>
+                            <ul class="pagination mb-0" id="coursePagination">
+                                <!-- Will be populated dynamically -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Include modal templates -->
+    <!-- We'll add modals for adding/editing courses and modules next -->
+    
+    <!-- Add/Edit Course Modal -->
+    <div class="modal fade" id="courseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="courseModalLabel">Add New Course</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="courseForm">
+                        <input type="hidden" id="courseId">
+                        
+                        <div class="mb-3">
+                            <label for="courseTitle" class="form-label">Course Title</label>
+                            <input type="text" class="form-control" id="courseTitle" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="courseDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="courseDescription" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="courseImage" class="form-label">Image URL</label>
+                                <input type="text" class="form-control" id="courseImage" required placeholder="e.g., /images/courses/blockchain.jpg">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="courseReward" class="form-label">Reward Amount</label>
+                                <input type="text" class="form-control" id="courseReward" required value="50">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="courseCategory" class="form-label">Category</label>
+                                <select class="form-select" id="courseCategory" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Blockchain">Blockchain</option>
+                                    <option value="Cryptocurrency">Cryptocurrency</option>
+                                    <option value="DeFi">DeFi</option>
+                                    <option value="NFT">NFT</option>
+                                    <option value="Web3">Web3</option>
+                                    <option value="Trading">Trading</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="courseDifficulty" class="form-label">Difficulty</label>
+                                <select class="form-select" id="courseDifficulty" required>
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate">Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="courseCode" class="form-label">Course Code</label>
+                                <input type="text" class="form-control" id="courseCode" placeholder="e.g., BTC101">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="courseSlug" class="form-label">URL Slug</label>
+                                <input type="text" class="form-control" id="courseSlug" placeholder="e.g., intro-to-blockchain">
+                                <small class="text-muted">Used in the course URL, lowercase with hyphens</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="courseCustomId" class="form-label">Custom ID</label>
+                                <input type="text" class="form-control" id="courseCustomId" placeholder="e.g., blockchain-intro-2023">
+                                <small class="text-muted">Optional identifier for the course</small>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveCourseBtn">Save Course</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- View Course and Modules Modal -->
+    <div class="modal fade" id="viewCourseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewCourseModalLabel">Course Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="courseDetails"></div>
+                    
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4>Modules</h4>
+                            <button class="btn btn-primary btn-sm" id="addModuleBtn">
+                                <i class="fas fa-plus me-2"></i> Add Module
+                            </button>
+                        </div>
+                        <div id="modulesList" class="list-group">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="editCourseBtn">Edit Course</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add/Edit Module Modal -->
+    <div class="modal fade" id="moduleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="moduleModalLabel">Add New Module</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="moduleForm">
+                        <input type="hidden" id="moduleId">
+                        
+                        <div class="mb-3">
+                            <label for="moduleTitle" class="form-label">Module Title</label>
+                            <input type="text" class="form-control" id="moduleTitle" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="moduleDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="moduleDescription" rows="2" required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="moduleType" class="form-label">Module Type</label>
+                                <select class="form-select" id="moduleType" required>
+                                    <option value="text">Text</option>
+                                    <option value="video">Video</option>
+                                    <option value="quiz">Quiz</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="moduleLevel" class="form-label">Level</label>
+                                <input type="number" class="form-control" id="moduleLevel" min="1" value="1" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="moduleReward" class="form-label">Reward</label>
+                                <input type="text" class="form-control" id="moduleReward" value="10" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="moduleOrder" class="form-label">Order</label>
+                            <input type="number" class="form-control" id="moduleOrder" min="1" value="1" required>
+                            <small class="text-muted">The order in which this module appears in the course</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="moduleIsLocked">
+                                <label class="form-check-label" for="moduleIsLocked">Module is locked</label>
+                                <div class="text-muted small">If checked, users must complete previous modules first</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Module Content - Video URL -->
+                        <div id="videoContent" class="module-content-type">
+                            <div class="mb-3">
+                                <label for="moduleVideoUrl" class="form-label">Video URL</label>
+                                <input type="text" class="form-control" id="moduleVideoUrl" placeholder="e.g., https://www.youtube.com/embed/abc123">
+                                <small class="text-muted">Enter a YouTube embed URL or other video hosting URL</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Module Content - Text Content -->
+                        <div id="textContent" class="module-content-type">
+                            <div class="mb-3">
+                                <label for="moduleTextContent" class="form-label">Text Content</label>
+                                <textarea class="form-control" id="moduleTextContent" rows="5" placeholder="Enter the module content here..."></textarea>
+                                <small class="text-muted">You can use HTML formatting for rich content</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Module Content - Quiz Questions -->
+                        <div id="quizContent" class="module-content-type">
+                            <h5 class="mb-3">Quiz Questions</h5>
+                            <div id="questionsContainer">
+                                <!-- Questions will be added here dynamically -->
+                            </div>
+                            
+                            <button type="button" class="btn btn-outline-primary w-100 mt-3" id="addQuestionBtn">
+                                <i class="fas fa-plus me-2"></i> Add Question
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveModuleBtn">Save Module</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="deleteConfirmText">Are you sure you want to delete this item? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="admin-layout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        // These variables will be used across functions
+        let courses = [];
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentCourseId = null;
+        let currentModules = [];
+        let moduleCounter = 0;
+        let questionCounter = 0;
+        let deleteType = ''; // 'course' or 'module'
+        let deleteId = null;
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize admin layout
+            const adminInfo = initAdminLayout('courses');
+            if (!adminInfo) return;
+            
+            // Initialize page
+            setupEventListeners();
+            loadCourses();
+        });
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Filter and search
+            document.getElementById('applyFilters').addEventListener('click', () => {
+                currentPage = 1;
+                loadCourses();
+            });
+            
+            document.getElementById('resetFilters').addEventListener('click', () => {
+                document.getElementById('searchCourse').value = '';
+                document.getElementById('categoryFilter').value = '';
+                document.getElementById('difficultyFilter').value = '';
+                currentPage = 1;
+                loadCourses();
+            });
+            
+            // Add course button
+            document.getElementById('addCourseBtn').addEventListener('click', () => {
+                resetCourseForm();
+                document.getElementById('courseModalLabel').textContent = 'Add New Course';
+                const courseModal = new bootstrap.Modal(document.getElementById('courseModal'));
+                courseModal.show();
+            });
+            
+            // Save course button
+            document.getElementById('saveCourseBtn').addEventListener('click', saveCourse);
+            
+            // Edit course button
+            document.getElementById('editCourseBtn').addEventListener('click', () => {
+                const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewCourseModal'));
+                viewModal.hide();
+                
+                const course = courses.find(c => c._id === currentCourseId);
+                if (course) {
+                    fillCourseForm(course);
+                    document.getElementById('courseModalLabel').textContent = 'Edit Course';
+                    const courseModal = new bootstrap.Modal(document.getElementById('courseModal'));
+                    courseModal.show();
+                }
+            });
+            
+            // Add module button
+            document.getElementById('addModuleBtn').addEventListener('click', () => {
+                resetModuleForm();
+                document.getElementById('moduleModalLabel').textContent = 'Add New Module';
+                const moduleModal = new bootstrap.Modal(document.getElementById('moduleModal'));
+                moduleModal.show();
+            });
+            
+            // Save module button
+            document.getElementById('saveModuleBtn').addEventListener('click', saveModule);
+            
+            // Module type change event
+            document.getElementById('moduleType').addEventListener('change', toggleModuleContentType);
+            
+            // Add question button for quiz modules
+            document.getElementById('addQuestionBtn').addEventListener('click', addQuestionField);
+            
+            // Confirm delete button
+            document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
+        }
+        
+        // Load courses from API with filters and pagination
+        async function loadCourses() {
+            try {
+                const token = localStorage.getItem('adminToken');
+                if (!token) throw new Error('Authentication token is missing');
+                
+                // Get filter values
+                const search = document.getElementById('searchCourse').value;
+                const category = document.getElementById('categoryFilter').value;
+                const difficulty = document.getElementById('difficultyFilter').value;
+                
+                // Show loading indicator
+                document.getElementById('courseTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <div class="loader"></div>
+                        </td>
+                    </tr>
+                `;
+                
+                // Build query parameters
+                let queryParams = new URLSearchParams();
+                queryParams.append('page', currentPage);
+                queryParams.append('limit', 10);
+                
+                if (search) queryParams.append('search', search);
+                if (category) queryParams.append('category', category);
+                if (difficulty) queryParams.append('difficulty', difficulty);
+                
+                // Fetch courses
+                const response = await fetch(`/api/admin/courses?${queryParams.toString()}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch courses');
+                
+                const data = await response.json();
+                courses = data.courses;
+                
+                // Update pagination
+                if (data.pagination) {
+                    totalPages = data.pagination.pages;
+                    updatePagination(data.pagination);
+                }
+                
+                // Render courses
+                renderCourses(courses);
+                
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                showAlert('danger', 'Failed to load courses. Please try again.');
+                
+                // Show error in table
+                document.getElementById('courseTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Failed to load courses. Please try again.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Render the courses table
+        function renderCourses(courses) {
+            const tableBody = document.getElementById('courseTableBody');
+            
+            if (!courses || courses.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            <i class="fas fa-search me-2"></i>
+                            No courses found. Try different filters or create a new course.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            courses.forEach(course => {
+                html += `
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="course-image-small me-3" style="background-image: url(${course.image})"></div>
+                                <div>
+                                    <div class="fw-medium">${course.title}</div>
+                                    <div class="text-muted small">${truncateText(course.description, 50)}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${course.category}</td>
+                        <td><span class="badge bg-${getDifficultyColor(course.difficulty)}">${course.difficulty}</span></td>
+                        <td>${course.totalModules || 0}</td>
+                        <td>${course.enrolledUsers || 0}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="me-1">${course.rating || 0}</div>
+                                <div class="text-warning">
+                                    ${renderStarRating(course.rating || 0)}
+                                </div>
+                                <div class="ms-2 text-muted small">(${course.reviews || 0})</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    Actions
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item view-course" href="#" data-id="${course._id}">
+                                        <i class="fas fa-eye me-2"></i> View & Manage
+                                    </a></li>
+                                    <li><a class="dropdown-item edit-course" href="#" data-id="${course._id}">
+                                        <i class="fas fa-edit me-2"></i> Edit
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger delete-course" href="#" data-id="${course._id}">
+                                        <i class="fas fa-trash me-2"></i> Delete
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = html;
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.view-course').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    viewCourse(e.target.closest('a').dataset.id);
+                });
+            });
+            
+            document.querySelectorAll('.edit-course').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    editCourse(e.target.closest('a').dataset.id);
+                });
+            });
+            
+            document.querySelectorAll('.delete-course').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    deleteCourse(e.target.closest('a').dataset.id);
+                });
+            });
+        }
+        
+        // Update pagination controls
+        function updatePagination(pagination) {
+            const paginationEl = document.getElementById('coursePagination');
+            const paginationInfo = document.getElementById('paginationInfo');
+            
+            // Update info text
+            const start = (pagination.page - 1) * pagination.limit + 1;
+            const end = Math.min(pagination.page * pagination.limit, pagination.total);
+            paginationInfo.textContent = `Showing ${start}-${end} of ${pagination.total} courses`;
+            
+            // Generate pagination buttons
+            let html = '';
+            
+            // Previous button
+            html += `
+                <li class="page-item ${pagination.page === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${pagination.page - 1}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            `;
+            
+            // Page numbers
+            const maxPages = 5;
+            let startPage = Math.max(1, pagination.page - Math.floor(maxPages / 2));
+            let endPage = Math.min(pagination.pages, startPage + maxPages - 1);
+            
+            if (endPage - startPage + 1 < maxPages) {
+                startPage = Math.max(1, endPage - maxPages + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                html += `
+                    <li class="page-item ${pagination.page === i ? 'active' : ''}">
+                        <a class="page-link" href="#" data-page="${i}">${i}</a>
+                    </li>
+                `;
+            }
+            
+            // Next button
+            html += `
+                <li class="page-item ${pagination.page === pagination.pages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${pagination.page + 1}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            `;
+            
+            paginationEl.innerHTML = html;
+            
+            // Add event listeners to pagination buttons
+            document.querySelectorAll('#coursePagination .page-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = parseInt(e.target.closest('a').dataset.page);
+                    if (page !== currentPage) {
+                        currentPage = page;
+                        loadCourses();
+                        // Scroll to top of the table
+                        document.querySelector('.table').scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+        }
+        
+        // Helper function to render star rating
+        function renderStarRating(rating) {
+            const stars = [];
+            const fullStars = Math.floor(rating);
+            const halfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+            
+            for (let i = 0; i < fullStars; i++) {
+                stars.push('<i class="fas fa-star"></i>');
+            }
+            
+            if (halfStar) {
+                stars.push('<i class="fas fa-star-half-alt"></i>');
+            }
+            
+            for (let i = 0; i < emptyStars; i++) {
+                stars.push('<i class="far fa-star"></i>');
+            }
+            
+            return stars.join('');
+        }
+        
+        // Helper function to get difficulty badge color
+        function getDifficultyColor(difficulty) {
+            switch (difficulty) {
+                case 'Beginner':
+                    return 'success';
+                case 'Intermediate':
+                    return 'warning';
+                case 'Advanced':
+                    return 'danger';
+                default:
+                    return 'secondary';
+            }
+        }
+        
+        // Helper function to format dates
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric'
+            });
+        }
+        
+        // Helper function to truncate text
+        function truncateText(text, maxLength) {
+            if (!text) return '';
+            return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+        }
+        
+        // Show an alert message
+        function showAlert(type, message, autoClose = true) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertId = 'alert-' + Date.now();
+            
+            const alertHtml = `
+                <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            
+            alertContainer.innerHTML = alertHtml;
+            
+            if (autoClose) {
+                setTimeout(() => {
+                    const alert = document.getElementById(alertId);
+                    if (alert) {
+                        alert.classList.remove('show');
+                        setTimeout(() => {
+                            alert.remove();
+                        }, 300);
+                    }
+                }, 5000);
+            }
+        }
+        
+        // View course details and modules
+        async function viewCourse(courseId) {
+            try {
+                const token = localStorage.getItem('adminToken');
+                if (!token) throw new Error('Authentication token is missing');
+                
+                currentCourseId = courseId;
+                
+                // Show loading
+                document.getElementById('courseDetails').innerHTML = '<div class="text-center py-4"><div class="loader"></div></div>';
+                document.getElementById('modulesList').innerHTML = '<div class="text-center py-4"><div class="loader"></div></div>';
+                
+                const viewModal = new bootstrap.Modal(document.getElementById('viewCourseModal'));
+                viewModal.show();
+                
+                // Fetch course details
+                const response = await fetch(`/api/admin/courses/${courseId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch course details');
+                
+                const data = await response.json();
+                const course = data.course;
+                currentModules = data.modules || [];
+                
+                // Update user progress data
+                let progressData = null;
+                if (data.progressStats) {
+                    progressData = data.progressStats;
+                }
+                
+                // Render course details
+                renderCourseDetails(course, progressData);
+                
+                // Render modules
+                renderModulesList(currentModules);
+                
+                // Update modal title
+                document.getElementById('viewCourseModalLabel').textContent = `Course: ${course.title}`;
+                
+            } catch (error) {
+                console.error('Error viewing course:', error);
+                showAlert('danger', 'Failed to load course details. Please try again.');
+                
+                document.getElementById('courseDetails').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Failed to load course details. Please try again.
+                    </div>
+                `;
+                document.getElementById('modulesList').innerHTML = '';
+            }
+        }
+        
+        // Render course details
+        function renderCourseDetails(course, progressData) {
+            const courseDetailsEl = document.getElementById('courseDetails');
+            
+            const enrollmentText = progressData ? 
+                `<div class="stat-item">
+                    <div class="stat-value">${progressData.completed}</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${progressData.inProgress}</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${progressData.completionRate}%</div>
+                    <div class="stat-label">Completion Rate</div>
+                </div>` :
+                `<div class="stat-item">
+                    <div class="stat-value">${course.enrolledUsers || 0}</div>
+                    <div class="stat-label">Enrollments</div>
+                </div>`;
+            
+            const detailsHtml = `
+                <div class="course-image-large" style="background-image: url(${course.image})"></div>
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <h3>${course.title}</h3>
+                        <p class="text-muted">${course.description}</p>
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            <span class="badge bg-${getDifficultyColor(course.difficulty)}">${course.difficulty}</span>
+                            <span class="badge bg-info">${course.category}</span>
+                            ${course.code ? `<span class="badge bg-secondary">Code: ${course.code}</span>` : ''}
+                        </div>
+                        <div class="text-muted small">
+                            <div>Reward: ${course.reward}</div>
+                            ${course.slug ? `<div>Slug: ${course.slug}</div>` : ''}
+                            ${course.customId ? `<div>Custom ID: ${course.customId}</div>` : ''}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Statistics</h5>
+                                <div class="stats-container">
+                                    ${enrollmentText}
+                                    <div class="stat-item">
+                                        <div class="stat-value">${course.totalModules || 0}</div>
+                                        <div class="stat-label">Modules</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <div class="me-1">${course.rating || 0}</div>
+                                            <div class="text-warning">${renderStarRating(course.rating || 0)}</div>
+                                        </div>
+                                        <div class="stat-label">${course.reviews || 0} Reviews</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-muted mt-2 small">
+                            <div>Created: ${formatDate(course.createdAt)}</div>
+                            <div>Last Updated: ${formatDate(course.updatedAt)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            courseDetailsEl.innerHTML = detailsHtml;
+        }
+        
+        // Render modules list
+        function renderModulesList(modules) {
+            const modulesListEl = document.getElementById('modulesList');
+            
+            if (!modules || modules.length === 0) {
+                modulesListEl.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No modules have been added to this course yet. Click "Add Module" to create one.
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort modules by order
+            modules.sort((a, b) => a.order - b.order);
+            
+            let html = '';
+            
+            modules.forEach(module => {
+                const moduleTypeIcon = getModuleTypeIcon(module.type);
+                const moduleTypeLabel = getModuleTypeLabel(module.type);
+                const moduleContent = getModuleContentSummary(module);
+                
+                html += `
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <div>
+                                <h5 class="mb-1">
+                                    <span class="badge bg-${getModuleTypeColor(module.type)} me-2">
+                                        <i class="${moduleTypeIcon} me-1"></i> ${moduleTypeLabel}
+                                    </span>
+                                    ${module.title}
+                                </h5>
+                                <p class="mb-1">${module.description}</p>
+                                <div class="small text-muted">
+                                    Level: ${module.level} | Order: ${module.order} | Reward: ${module.reward}
+                                    ${module.isLocked ? ' | <i class="fas fa-lock me-1"></i>Locked' : ''}
+                                </div>
+                                ${moduleContent}
+                            </div>
+                            <div class="module-actions">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item edit-module" href="#" data-id="${module._id}">
+                                            <i class="fas fa-edit me-2"></i> Edit
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger delete-module" href="#" data-id="${module._id}">
+                                            <i class="fas fa-trash me-2"></i> Delete
+                                        </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            modulesListEl.innerHTML = html;
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.edit-module').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    editModule(e.target.closest('a').dataset.id);
+                });
+            });
+            
+            document.querySelectorAll('.delete-module').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    deleteModule(e.target.closest('a').dataset.id);
+                });
+            });
+        }
+        
+        // Helper functions for module display
+        function getModuleTypeIcon(type) {
+            switch (type) {
+                case 'video':
+                    return 'fas fa-video';
+                case 'text':
+                    return 'fas fa-file-alt';
+                case 'quiz':
+                    return 'fas fa-question-circle';
+                default:
+                    return 'fas fa-book';
+            }
+        }
+        
+        function getModuleTypeLabel(type) {
+            switch (type) {
+                case 'video':
+                    return 'Video';
+                case 'text':
+                    return 'Text';
+                case 'quiz':
+                    return 'Quiz';
+                default:
+                    return 'Module';
+            }
+        }
+        
+        function getModuleTypeColor(type) {
+            switch (type) {
+                case 'video':
+                    return 'primary';
+                case 'text':
+                    return 'success';
+                case 'quiz':
+                    return 'warning';
+                default:
+                    return 'secondary';
+            }
+        }
+        
+        function getModuleContentSummary(module) {
+            if (!module.content) return '';
+            
+            switch (module.type) {
+                case 'video':
+                    return module.content.videoUrl ? 
+                        `<div class="mt-2"><small class="text-primary"><i class="fas fa-link me-1"></i>${truncateText(module.content.videoUrl, 50)}</small></div>` : '';
+                case 'text':
+                    return module.content.textContent ? 
+                        `<div class="mt-2"><small class="text-success"><i class="fas fa-file-alt me-1"></i>${module.content.textContent.length} characters</small></div>` : '';
+                case 'quiz':
+                    return module.content.questions ? 
+                        `<div class="mt-2"><small class="text-warning"><i class="fas fa-question-circle me-1"></i>${module.content.questions.length} questions</small></div>` : '';
+                default:
+                    return '';
+            }
+        }
+        
+        // Edit course
+        function editCourse(courseId) {
+            const course = courses.find(c => c._id === courseId);
+            if (!course) return;
+            
+            fillCourseForm(course);
+            document.getElementById('courseModalLabel').textContent = 'Edit Course';
+            const courseModal = new bootstrap.Modal(document.getElementById('courseModal'));
+            courseModal.show();
+        }
+        
+        // Fill course form with data
+        function fillCourseForm(course) {
+            // Set course ID
+            currentCourseId = course._id;
+            document.getElementById('courseId').value = course._id;
+            
+            // Fill basic details
+            document.getElementById('courseTitle').value = course.title || '';
+            document.getElementById('courseDescription').value = course.description || '';
+            document.getElementById('courseImage').value = course.image || '';
+            document.getElementById('courseReward').value = course.reward || '';
+            document.getElementById('courseCategory').value = course.category || '';
+            document.getElementById('courseDifficulty').value = course.difficulty || 'Beginner';
+            document.getElementById('courseCode').value = course.code || '';
+            document.getElementById('courseSlug').value = course.slug || '';
+            document.getElementById('courseCustomId').value = course.customId || '';
+        }
+        
+        // Reset course form
+        function resetCourseForm() {
+            document.getElementById('courseId').value = '';
+            document.getElementById('courseTitle').value = '';
+            document.getElementById('courseDescription').value = '';
+            document.getElementById('courseImage').value = '';
+            document.getElementById('courseReward').value = '50';
+            document.getElementById('courseCategory').value = '';
+            document.getElementById('courseDifficulty').value = 'Beginner';
+            document.getElementById('courseCode').value = '';
+            document.getElementById('courseSlug').value = '';
+            document.getElementById('courseCustomId').value = '';
+            
+            currentCourseId = null;
+        }
+        
+        // Save course (create or update)
+        async function saveCourse() {
+            try {
+                // Validate the form
+                const form = document.getElementById('courseForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                // Get course data
+                const courseId = document.getElementById('courseId').value;
+                const title = document.getElementById('courseTitle').value;
+                const description = document.getElementById('courseDescription').value;
+                const image = document.getElementById('courseImage').value;
+                const reward = document.getElementById('courseReward').value;
+                const category = document.getElementById('courseCategory').value;
+                const difficulty = document.getElementById('courseDifficulty').value;
+                const code = document.getElementById('courseCode').value;
+                const slug = document.getElementById('courseSlug').value;
+                const customId = document.getElementById('courseCustomId').value;
+                
+                // Prepare the data
+                const courseData = {
+                    title,
+                    description,
+                    image,
+                    reward,
+                    category,
+                    difficulty
+                };
+                
+                // Add optional fields if they have values
+                if (code) courseData.code = code;
+                if (slug) courseData.slug = slug;
+                if (customId) courseData.customId = customId;
+                
+                const token = localStorage.getItem('adminToken');
+                if (!token) throw new Error('Authentication token is missing');
+                
+                let url = '/api/admin/courses';
+                let method = 'POST';
+                
+                // If we're updating an existing course
+                if (courseId) {
+                    url = `/api/admin/courses/${courseId}`;
+                    method = 'PATCH';
+                }
+                
+                // Show loading state
+                const saveBtn = document.getElementById('saveCourseBtn');
+                const originalBtnText = saveBtn.innerHTML;
+                saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Saving...';
+                saveBtn.disabled = true;
+                
+                // Make API request
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(courseData)
+                });
+                
+                if (!response.ok) throw new Error('Failed to save course');
+                
+                const data = await response.json();
+                
+                // Close the modal
+                const courseModal = bootstrap.Modal.getInstance(document.getElementById('courseModal'));
+                courseModal.hide();
+                
+                // Show success message
+                showAlert('success', `Course ${courseId ? 'updated' : 'created'} successfully`);
+                
+                // Reload courses to reflect the changes
+                loadCourses();
+                
+            } catch (error) {
+                console.error('Error saving course:', error);
+                showAlert('danger', 'Failed to save course. Please try again.');
+            } finally {
+                // Reset button state
+                const saveBtn = document.getElementById('saveCourseBtn');
+                saveBtn.innerHTML = 'Save Course';
+                saveBtn.disabled = false;
+            }
+        }
+    
+        // Delete course
+        function deleteCourse(courseId) {
+            deleteType = 'course';
+            deleteId = courseId;
+            
+            // Update confirmation text
+            document.getElementById('deleteConfirmText').innerHTML = 
+                'Are you sure you want to delete this course? This action cannot be undone.<br><br>' +
+                '<strong class="text-danger">WARNING:</strong> Deleting this course will also remove:' +
+                '<ul>' +
+                '<li>All modules in this course</li>' +
+                '<li>All user progress for this course</li>' +
+                '<li>All enrollments in this course</li>' +
+                '</ul>';
+            
+            document.getElementById('deleteConfirmModalLabel').textContent = 'Delete Course';
+            
+            // Show delete confirmation modal
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            deleteModal.show();
+        }
+        
+        // Edit module
+        function editModule(moduleId) {
+            const module = currentModules.find(m => m._id === moduleId);
+            if (!module) return;
+            
+            fillModuleForm(module);
+            document.getElementById('moduleModalLabel').textContent = 'Edit Module';
+            const moduleModal = new bootstrap.Modal(document.getElementById('moduleModal'));
+            moduleModal.show();
+        }
+        
+        // Fill module form with data
+        function fillModuleForm(module) {
+            // Reset form first
+            resetModuleForm();
+            
+            // Set module ID
+            document.getElementById('moduleId').value = module._id;
+            
+            // Fill basic details
+            document.getElementById('moduleTitle').value = module.title || '';
+            document.getElementById('moduleDescription').value = module.description || '';
+            document.getElementById('moduleType').value = module.type || 'text';
+            document.getElementById('moduleLevel').value = module.level || 1;
+            document.getElementById('moduleReward').value = module.reward || 10;
+            document.getElementById('moduleOrder').value = module.order || 1;
+            document.getElementById('moduleIsLocked').checked = module.isLocked || false;
+            
+            // Set content based on type
+            toggleModuleContentType();
+            
+            if (module.content) {
+                switch (module.type) {
+                    case 'video':
+                        document.getElementById('moduleVideoUrl').value = module.content.videoUrl || '';
+                        break;
+                    case 'text':
+                        document.getElementById('moduleTextContent').value = module.content.textContent || '';
+                        break;
+                    case 'quiz':
+                        if (module.content.questions && module.content.questions.length > 0) {
+                            // Clear existing questions
+                            document.getElementById('questionsContainer').innerHTML = '';
+                            // Add each question
+                            module.content.questions.forEach(question => {
+                                addQuestionField(null, question);
+                            });
+                        } else {
+                            addQuestionField();
+                        }
+                        break;
+                }
+            }
+        }
+        
+        // Reset module form
+        function resetModuleForm() {
+            document.getElementById('moduleId').value = '';
+            document.getElementById('moduleTitle').value = '';
+            document.getElementById('moduleDescription').value = '';
+            document.getElementById('moduleType').value = 'text';
+            document.getElementById('moduleLevel').value = '1';
+            document.getElementById('moduleReward').value = '10';
+            document.getElementById('moduleOrder').value = currentModules.length + 1;
+            document.getElementById('moduleIsLocked').checked = false;
+            
+            document.getElementById('moduleVideoUrl').value = '';
+            document.getElementById('moduleTextContent').value = '';
+            document.getElementById('questionsContainer').innerHTML = '';
+            
+            // Show appropriate content type
+            toggleModuleContentType();
+            questionCounter = 0;
+            
+            // Add at least one question for quiz type
+            if (document.getElementById('moduleType').value === 'quiz') {
+                addQuestionField();
+            }
+        }
+        
+        // Toggle module content type based on selection
+        function toggleModuleContentType() {
+            const moduleType = document.getElementById('moduleType').value;
+            
+            // Hide all content types
+            document.querySelectorAll('.module-content-type').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            // Show selected content type
+            switch (moduleType) {
+                case 'video':
+                    document.getElementById('videoContent').style.display = 'block';
+                    break;
+                case 'text':
+                    document.getElementById('textContent').style.display = 'block';
+                    break;
+                case 'quiz':
+                    document.getElementById('quizContent').style.display = 'block';
+                    // Add a question if none exist
+                    if (document.querySelectorAll('#questionsContainer .question-card').length === 0) {
+                        addQuestionField();
+                    }
+                    break;
+            }
+        }
+        
+        // Add a question field to the quiz module
+        function addQuestionField(event = null, questionData = null) {
+            if (event) event.preventDefault();
+            
+            const container = document.getElementById('questionsContainer');
+            const questionId = questionCounter++;
+            
+            const questionText = questionData ? questionData.question : '';
+            const options = questionData ? questionData.options : ['', '', '', ''];
+            const correctAnswer = questionData ? questionData.correctAnswer : 0;
+            
+            // Generate options inputs
+            let optionsHtml = '';
+            options.forEach((option, index) => {
+                optionsHtml += `
+                    <div class="input-group mb-2">
+                        <div class="input-group-text">
+                            <input class="form-check-input mt-0" type="radio" name="correctAnswer_${questionId}" 
+                                value="${index}" ${index === correctAnswer ? 'checked' : ''}>
+                        </div>
+                        <input type="text" class="form-control" placeholder="Option ${index + 1}" 
+                            name="option_${questionId}_${index}" required value="${option}">
+                        <button class="btn btn-outline-danger remove-option" type="button"
+                            ${index < 2 ? 'disabled' : ''}>
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            
+            // Create the question card
+            const questionCard = document.createElement('div');
+            questionCard.className = 'card mb-4 question-card';
+            questionCard.id = `question_${questionId}`;
+            questionCard.innerHTML = `
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Question ${container.children.length + 1}</h6>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-question"
+                        ${container.children.length === 0 ? 'disabled' : ''}>
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Question Text</label>
+                        <input type="text" class="form-control" name="question_${questionId}" 
+                            placeholder="Enter question text" required value="${questionText}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Options (select the correct answer)</label>
+                        <div class="options-container" id="options_${questionId}">
+                            ${optionsHtml}
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary add-option mt-2"
+                            ${options.length >= 6 ? 'disabled' : ''}>
+                            <i class="fas fa-plus me-1"></i> Add Option
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(questionCard);
+            
+            // Add event listeners for the new question card
+            const newCard = document.getElementById(`question_${questionId}`);
+            
+            // Remove question button
+            newCard.querySelector('.remove-question').addEventListener('click', function() {
+                if (container.children.length > 1) {
+                    questionCard.remove();
+                    // Update question numbers
+                    updateQuestionNumbers();
+                }
+            });
+            
+            // Add option button
+            newCard.querySelector('.add-option').addEventListener('click', function() {
+                const optionsContainer = document.getElementById(`options_${questionId}`);
+                const optionCount = optionsContainer.querySelectorAll('.input-group').length;
+                
+                if (optionCount < 6) {
+                    const newOption = document.createElement('div');
+                    newOption.className = 'input-group mb-2';
+                    newOption.innerHTML = `
+                        <div class="input-group-text">
+                            <input class="form-check-input mt-0" type="radio" name="correctAnswer_${questionId}" value="${optionCount}">
+                        </div>
+                        <input type="text" class="form-control" placeholder="Option ${optionCount + 1}" 
+                            name="option_${questionId}_${optionCount}" required>
+                        <button class="btn btn-outline-danger remove-option" type="button">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    
+                    optionsContainer.appendChild(newOption);
+                    
+                    // Add event listener to the new remove option button
+                    newOption.querySelector('.remove-option').addEventListener('click', function() {
+                        if (optionsContainer.children.length > 2) {
+                            newOption.remove();
+                            // Update option indices
+                            updateOptionIndices(optionsContainer, questionId);
+                        }
+                    });
+                    
+                    // Disable add option button if we reached the max
+                    if (optionsContainer.children.length >= 6) {
+                        this.disabled = true;
+                    }
+                }
+            });
+            
+            // Remove option buttons
+            newCard.querySelectorAll('.remove-option').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const optionsContainer = document.getElementById(`options_${questionId}`);
+                    if (optionsContainer.children.length > 2) {
+                        this.closest('.input-group').remove();
+                        // Update option indices
+                        updateOptionIndices(optionsContainer, questionId);
+                        // Enable add option button
+                        newCard.querySelector('.add-option').disabled = false;
+                    }
+                });
+            });
+        }
+        
+        // Update question numbers after removing a question
+        function updateQuestionNumbers() {
+            const questions = document.querySelectorAll('.question-card');
+            questions.forEach((card, index) => {
+                card.querySelector('.card-header h6').textContent = `Question ${index + 1}`;
+                // Enable/disable remove buttons based on count
+                card.querySelector('.remove-question').disabled = questions.length <= 1;
+            });
+        }
+        
+        // Update option indices after adding/removing options
+        function updateOptionIndices(optionsContainer, questionId) {
+            const options = optionsContainer.querySelectorAll('.input-group');
+            options.forEach((option, index) => {
+                // Update radio button value
+                option.querySelector('input[type="radio"]').value = index;
+                
+                // Update input name and placeholder
+                const input = option.querySelector('input[type="text"]');
+                input.name = `option_${questionId}_${index}`;
+                input.placeholder = `Option ${index + 1}`;
+                
+                // Enable/disable remove buttons based on count
+                option.querySelector('.remove-option').disabled = options.length <= 2;
+            });
+        }
+        
+        // Delete module
+        function deleteModule(moduleId) {
+            deleteType = 'module';
+            deleteId = moduleId;
+            
+            // Update confirmation text
+            document.getElementById('deleteConfirmText').innerHTML = 
+                'Are you sure you want to delete this module? This action cannot be undone.<br><br>' +
+                '<strong class="text-danger">WARNING:</strong> Deleting this module will also remove:' +
+                '<ul>' +
+                '<li>All user progress for this module</li>' +
+                '<li>The module\'s content and questions</li>' +
+                '</ul>';
+            
+            document.getElementById('deleteConfirmModalLabel').textContent = 'Delete Module';
+            
+            // Show delete confirmation modal
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            deleteModal.show();
+        }
+        
+        // Save module (create or update)
+        async function saveModule() {
+            try {
+                // Validate the form
+                const form = document.getElementById('moduleForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                // Get module data
+                const moduleId = document.getElementById('moduleId').value;
+                const title = document.getElementById('moduleTitle').value;
+                const description = document.getElementById('moduleDescription').value;
+                const type = document.getElementById('moduleType').value;
+                const level = parseInt(document.getElementById('moduleLevel').value);
+                const reward = document.getElementById('moduleReward').value;
+                const order = parseInt(document.getElementById('moduleOrder').value);
+                const isLocked = document.getElementById('moduleIsLocked').checked;
+                
+                // Get content based on type
+                let content = {};
+                
+                switch (type) {
+                    case 'video':
+                        content.videoUrl = document.getElementById('moduleVideoUrl').value;
+                        break;
+                    case 'text':
+                        content.textContent = document.getElementById('moduleTextContent').value;
+                        break;
+                    case 'quiz':
+                        // Get questions
+                        const questionCards = document.querySelectorAll('.question-card');
+                        const questions = [];
+                        
+                        for (const card of questionCards) {
+                            const cardId = card.id.split('_')[1];
+                            const questionText = card.querySelector(`input[name="question_${cardId}"]`).value;
+                            
+                            // Get options and correct answer
+                            const options = [];
+                            const optionsInputs = card.querySelectorAll(`input[name^="option_${cardId}_"]`);
+                            optionsInputs.forEach(input => {
+                                options.push(input.value);
+                            });
+                            
+                            const correctAnswer = parseInt(card.querySelector(`input[name="correctAnswer_${cardId}"]:checked`).value);
+                            
+                            questions.push({
+                                question: questionText,
+                                options: options,
+                                correctAnswer: correctAnswer
+                            });
+                        }
+                        
+                        // Validate questions
+                        if (questions.length === 0) {
+                            showAlert('danger', 'You must add at least one question');
+                            return;
+                        }
+                        
+                        content.questions = questions;
+                        break;
+                }
+                
+                // Validate content based on type
+                if (type === 'video' && !content.videoUrl) {
+                    showAlert('danger', 'Video URL is required for video modules');
+                    return;
+                }
+                
+                if (type === 'text' && !content.textContent) {
+                    showAlert('danger', 'Text content is required for text modules');
+                    return;
+                }
+                
+                if (type === 'quiz' && (!content.questions || content.questions.length === 0)) {
+                    showAlert('danger', 'At least one question is required for quiz modules');
+                    return;
+                }
+                
+                // Prepare the data
+                const moduleData = {
+                    title,
+                    description,
+                    type,
+                    level,
+                    reward,
+                    order,
+                    isLocked,
+                    content,
+                    course: currentCourseId
+                };
+                
+                const token = localStorage.getItem('adminToken');
+                if (!token) throw new Error('Authentication token is missing');
+                
+                let url = `/api/admin/courses/${currentCourseId}/modules`;
+                let method = 'POST';
+                
+                // If we're updating an existing module
+                if (moduleId) {
+                    url = `/api/admin/courses/${currentCourseId}/modules/${moduleId}`;
+                    method = 'PATCH';
+                }
+                
+                // Show loading state
+                const saveBtn = document.getElementById('saveModuleBtn');
+                const originalBtnText = saveBtn.innerHTML;
+                saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Saving...';
+                saveBtn.disabled = true;
+                
+                // Make API request
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(moduleData)
+                });
+                
+                if (!response.ok) throw new Error('Failed to save module');
+                
+                const data = await response.json();
+                
+                // Close the modal
+                const moduleModal = bootstrap.Modal.getInstance(document.getElementById('moduleModal'));
+                moduleModal.hide();
+                
+                // Show success message
+                showAlert('success', `Module ${moduleId ? 'updated' : 'created'} successfully`);
+                
+                // Refresh the course view
+                viewCourse(currentCourseId);
+                
+            } catch (error) {
+                console.error('Error saving module:', error);
+                showAlert('danger', 'Failed to save module. Please try again.');
+            } finally {
+                // Reset button state
+                const saveBtn = document.getElementById('saveModuleBtn');
+                saveBtn.innerHTML = 'Save Module';
+                saveBtn.disabled = false;
+            }
+        }
+        
+        // Handle delete confirmation
+        async function confirmDelete() {
+            try {
+                const token = localStorage.getItem('adminToken');
+                if (!token) throw new Error('Authentication token is missing');
+                
+                let url = '';
+                let successMessage = '';
+                
+                if (deleteType === 'course') {
+                    url = `/api/admin/courses/${deleteId}`;
+                    successMessage = 'Course deleted successfully';
+                } else if (deleteType === 'module') {
+                    url = `/api/admin/courses/${currentCourseId}/modules/${deleteId}`;
+                    successMessage = 'Module deleted successfully';
+                } else {
+                    throw new Error('Invalid delete type');
+                }
+                
+                // Show loading state
+                const deleteBtn = document.getElementById('confirmDeleteBtn');
+                const originalBtnText = deleteBtn.innerHTML;
+                deleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Deleting...';
+                deleteBtn.disabled = true;
+                
+                // Make API request
+                const response = await fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`Failed to delete ${deleteType}`);
+                
+                // Close the modal
+                const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+                deleteModal.hide();
+                
+                // Show success message
+                showAlert('success', successMessage);
+                
+                // Refresh the appropriate view
+                if (deleteType === 'course') {
+                    loadCourses();
+                    // Close the course view modal if open
+                    const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewCourseModal'));
+                    if (viewModal) viewModal.hide();
+                } else if (deleteType === 'module') {
+                    viewCourse(currentCourseId);
+                }
+                
+            } catch (error) {
+                console.error(`Error deleting ${deleteType}:`, error);
+                showAlert('danger', `Failed to delete ${deleteType}. Please try again.`);
+            } finally {
+                // Reset button state
+                const deleteBtn = document.getElementById('confirmDeleteBtn');
+                deleteBtn.innerHTML = 'Delete';
+                deleteBtn.disabled = false;
+                
+                // Reset delete variables
+                deleteType = '';
+                deleteId = null;
+            }
+        }
+    </script>
+    
+    <style>
+        .course-image-small {
+            width: 60px;
+            height: 40px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 4px;
+        }
+        .course-image-large {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .module-content-type {
+            display: none;
+        }
+        .stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: rgba(0,0,0,0.03);
+        }
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--bs-gray-600);
+        }
+    </style>
+</body>
+</html> 

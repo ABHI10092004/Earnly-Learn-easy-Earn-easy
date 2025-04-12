@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earnly - Leaderboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <div id="nav-placeholder"></div>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="text-center mb-4">Earnly Leaderboard</h1>
+                <p class="text-center lead">Meet our top users ranked by transaction activity</p>
+            </div>
+        </div>
+
+        <!-- Leaderboard Stats -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white mb-3">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="display-4 me-3">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title">Top Users</h5>
+                            <p class="card-text h2" id="totalUsers">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white mb-3">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="display-4 me-3">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title">Total Transactions</h5>
+                            <p class="card-text h2" id="totalTransactions">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white mb-3">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="display-4 me-3">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title">Total Rewards</h5>
+                            <p class="card-text h2" id="totalRewards">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">User Rankings</h5>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary active" data-period="all">All Time</button>
+                            <button type="button" class="btn btn-outline-primary" data-period="month">This Month</button>
+                            <button type="button" class="btn btn-outline-primary" data-period="week">This Week</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>User</th>
+                                        <th>Transactions</th>
+                                        <th>Rewards Earned</th>
+                                        <th>Last Activity</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboardBody">
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 3 Users Highlight -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="text-center mb-4">Top 3 Users</h3>
+            </div>
+            <div class="col-md-4" id="secondPlace">
+                <div class="card text-center border-secondary mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h4><i class="fas fa-medal"></i> 2nd Place</h4>
+                    </div>
+                    <div class="card-body py-4">
+                        <h5 class="card-title second-username">User Name</h5>
+                        <p class="card-text second-transactions">0 Transactions</p>
+                        <p class="card-text second-rewards">0 Tokens</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" id="firstPlace">
+                <div class="card text-center border-warning mb-3">
+                    <div class="card-header bg-warning">
+                        <h4><i class="fas fa-trophy"></i> 1st Place</h4>
+                    </div>
+                    <div class="card-body py-4">
+                        <h5 class="card-title first-username">User Name</h5>
+                        <p class="card-text first-transactions">0 Transactions</p>
+                        <p class="card-text first-rewards">0 Tokens</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" id="thirdPlace">
+                <div class="card text-center border-danger mb-3">
+                    <div class="card-header bg-danger text-white">
+                        <h4><i class="fas fa-medal"></i> 3rd Place</h4>
+                    </div>
+                    <div class="card-body py-4">
+                        <h5 class="card-title third-username">User Name</h5>
+                        <p class="card-text third-transactions">0 Transactions</p>
+                        <p class="card-text third-rewards">0 Tokens</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-coins me-2"></i>Earnly</h5>
+                    <p>Learn and earn cryptocurrency rewards</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>© 2023 Earnly. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="nav.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load navigation
+            $("#nav-placeholder").load("nav.html", function() {
+                // Highlight current page in nav
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    if (link.getAttribute('href') === '/leaderboard.html') {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            // Initialize with "all time" data
+            loadLeaderboardData('all');
+
+            // Period filter buttons event listeners
+            document.querySelectorAll('[data-period]').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Update active button
+                    document.querySelectorAll('[data-period]').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    this.classList.add('active');
+
+                    // Load data for selected period
+                    const period = this.getAttribute('data-period');
+                    loadLeaderboardData(period);
+                });
+            });
+
+            // Function to load leaderboard data
+            async function loadLeaderboardData(period) {
+                try {
+                    // Show loading state
+                    document.getElementById('leaderboardBody').innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    
+                    // Fetch leaderboard data
+                    const response = await fetch(`/api/leaderboard?period=${period}`);
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to load leaderboard data');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Update stats
+                    document.getElementById('totalUsers').textContent = data.stats.totalUsers || 0;
+                    document.getElementById('totalTransactions').textContent = data.stats.totalTransactions || 0;
+                    document.getElementById('totalRewards').textContent = data.stats.totalRewards || 0;
+                    
+                    // Render leaderboard table
+                    renderLeaderboardTable(data.leaderboard);
+                    
+                    // Update top 3 cards
+                    updateTopThreeCards(data.leaderboard);
+                    
+                } catch (error) {
+                    console.error('Error loading leaderboard data:', error);
+                    document.getElementById('leaderboardBody').innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-danger">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                Error loading leaderboard data. Please try again.
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+            
+            // Function to render leaderboard table
+            function renderLeaderboardTable(leaderboard) {
+                if (!leaderboard || leaderboard.length === 0) {
+                    document.getElementById('leaderboardBody').innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                No leaderboard data available.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                const tableBody = document.getElementById('leaderboardBody');
+                tableBody.innerHTML = '';
+                
+                leaderboard.forEach((user, index) => {
+                    const rank = index + 1;
+                    const row = document.createElement('tr');
+                    
+                    // Add rank badge for top 3
+                    let rankDisplay = rank.toString();
+                    if (rank === 1) {
+                        rankDisplay = `<span class="badge bg-warning"><i class="fas fa-trophy"></i> ${rank}</span>`;
+                    } else if (rank === 2) {
+                        rankDisplay = `<span class="badge bg-secondary"><i class="fas fa-medal"></i> ${rank}</span>`;
+                    } else if (rank === 3) {
+                        rankDisplay = `<span class="badge bg-danger"><i class="fas fa-medal"></i> ${rank}</span>`;
+                    }
+                    
+                    // Format date
+                    const lastActivity = new Date(user.lastActivity).toLocaleDateString();
+                    
+                    row.innerHTML = `
+                        <td>${rankDisplay}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar me-2 bg-light rounded-circle text-center" style="width: 40px; height: 40px; line-height: 40px;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">${user.username}</div>
+                                    <small class="text-muted">Member since ${new Date(user.memberSince).toLocaleDateString()}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${user.transactionCount}</td>
+                        <td>${user.totalRewards} tokens</td>
+                        <td>${lastActivity}</td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+            }
+            
+            // Function to update top 3 cards
+            function updateTopThreeCards(leaderboard) {
+                if (!leaderboard || leaderboard.length === 0) {
+                    document.getElementById('firstPlace').style.display = 'none';
+                    document.getElementById('secondPlace').style.display = 'none';
+                    document.getElementById('thirdPlace').style.display = 'none';
+                    return;
+                }
+                
+                // First place
+                if (leaderboard.length > 0) {
+                    const first = leaderboard[0];
+                    document.querySelector('.first-username').textContent = first.username;
+                    document.querySelector('.first-transactions').textContent = `${first.transactionCount} Transactions`;
+                    document.querySelector('.first-rewards').textContent = `${first.totalRewards} Tokens`;
+                    document.getElementById('firstPlace').style.display = 'block';
+                } else {
+                    document.getElementById('firstPlace').style.display = 'none';
+                }
+                
+                // Second place
+                if (leaderboard.length > 1) {
+                    const second = leaderboard[1];
+                    document.querySelector('.second-username').textContent = second.username;
+                    document.querySelector('.second-transactions').textContent = `${second.transactionCount} Transactions`;
+                    document.querySelector('.second-rewards').textContent = `${second.totalRewards} Tokens`;
+                    document.getElementById('secondPlace').style.display = 'block';
+                } else {
+                    document.getElementById('secondPlace').style.display = 'none';
+                }
+                
+                // Third place
+                if (leaderboard.length > 2) {
+                    const third = leaderboard[2];
+                    document.querySelector('.third-username').textContent = third.username;
+                    document.querySelector('.third-transactions').textContent = `${third.transactionCount} Transactions`;
+                    document.querySelector('.third-rewards').textContent = `${third.totalRewards} Tokens`;
+                    document.getElementById('thirdPlace').style.display = 'block';
+                } else {
+                    document.getElementById('thirdPlace').style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

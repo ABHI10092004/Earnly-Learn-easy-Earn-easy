@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earnly Admin - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <!-- Will be populated by admin-layout.js -->
+        </div>
+        
+        <!-- Content Area -->
+        <div class="admin-content">
+            <!-- Header -->
+            <div class="header" id="header">
+                <!-- Will be populated by admin-layout.js -->
+            </div>
+            
+            <!-- Main Content -->
+            <div class="main-content">
+                <div id="alertContainer"></div>
+                
+                <!-- Overview Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon primary">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="totalUsers">0</div>
+                                <div class="stat-label">Total Users</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon success">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="totalCourses">0</div>
+                                <div class="stat-label">Courses</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon info">
+                                <i class="fas fa-question-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="totalQuizzes">0</div>
+                                <div class="stat-label">Quizzes</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon warning">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="totalEarnings">0</div>
+                                <div class="stat-label">Total Earnings</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Charts Row -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">User Growth</h5>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="userGrowthDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Last 30 Days
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userGrowthDropdown">
+                                        <li><a class="dropdown-item active" href="#">Last 30 Days</a></li>
+                                        <li><a class="dropdown-item" href="#">Last 3 Months</a></li>
+                                        <li><a class="dropdown-item" href="#">Last 6 Months</a></li>
+                                        <li><a class="dropdown-item" href="#">Last Year</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="userGrowthChart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">User Activities</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="userActivitiesChart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activities & Quick Actions -->
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Recent User Activities</h5>
+                                <a href="/admin/users.html" class="btn btn-sm btn-outline-primary">View All</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>User</th>
+                                                <th>Action</th>
+                                                <th>Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recentActivitiesTable">
+                                            <tr>
+                                                <td colspan="3" class="text-center py-4">
+                                                    <div class="loader"></div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-3">
+                                    <a href="/admin/users.html" class="btn btn-outline-primary d-flex align-items-center justify-content-between">
+                                        <span><i class="fas fa-users me-2"></i> Manage Users</span>
+                                        <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                    <a href="/admin/quizzes.html" class="btn btn-outline-primary d-flex align-items-center justify-content-between">
+                                        <span><i class="fas fa-question-circle me-2"></i> Manage Quizzes</span>
+                                        <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                    <a href="/admin/courses.html" class="btn btn-outline-primary d-flex align-items-center justify-content-between">
+                                        <span><i class="fas fa-book me-2"></i> Manage Courses</span>
+                                        <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                    <a href="/admin/transactions.html" class="btn btn-outline-primary d-flex align-items-center justify-content-between">
+                                        <span><i class="fas fa-exchange-alt me-2"></i> View Transactions</span>
+                                        <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Users Widget -->
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h5 class="card-title">New Users</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <ul class="list-group list-group-flush" id="recentUsersList">
+                                    <li class="list-group-item text-center py-4">
+                                        <div class="loader"></div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="admin-layout.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize admin layout
+            const adminInfo = initAdminLayout('dashboard');
+            if (!adminInfo) return;
+            
+            // Load dashboard data
+            loadDashboardData();
+            
+            // Initialize charts
+            initUserGrowthChart();
+            initUserActivitiesChart();
+        });
+        
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                const token = localStorage.getItem('adminToken');
+                if (!token) throw new Error('Authentication token is missing');
+                
+                // Fetch dashboard statistics
+                const response = await fetch('/api/admin/dashboard', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch dashboard data');
+                
+                const data = await response.json();
+                
+                // Update stats
+                if (data.stats) {
+                    document.getElementById('totalUsers').textContent = data.stats.users.total || 0;
+                    document.getElementById('totalQuizzes').textContent = data.stats.quizzes.total || 0;
+                    
+                    // Populate recent users list
+                    if (data.stats.users.recent && data.stats.users.recent.length > 0) {
+                        const recentUsersList = document.getElementById('recentUsersList');
+                        recentUsersList.innerHTML = '';
+                        
+                        data.stats.users.recent.forEach(user => {
+                            const date = new Date(user.createdAt);
+                            const formattedDate = date.toLocaleDateString();
+                            
+                            recentUsersList.innerHTML += `
+                                <li class="list-group-item d-flex align-items-center">
+                                    <div class="me-3">
+                                        <div class="avatar-placeholder">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="fw-medium">${user.fullName}</div>
+                                        <div class="text-muted small">${user.email}</div>
+                                    </div>
+                                    <div class="ms-auto text-muted small">
+                                        ${formattedDate}
+                                    </div>
+                                </li>
+                            `;
+                        });
+                    } else {
+                        document.getElementById('recentUsersList').innerHTML = `
+                            <li class="list-group-item text-center py-3">
+                                No recent users found
+                            </li>
+                        `;
+                    }
+                }
+                
+                // For demo purposes, set some dummy data
+                document.getElementById('totalCourses').textContent = 15;
+                document.getElementById('totalEarnings').textContent = '5,250';
+                
+                // Load recent activities (demo data)
+                loadRecentActivities();
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showAlert(error.message || 'Failed to load dashboard data', 'danger');
+            }
+        }
+        
+        // Load recent activities (demo data)
+        function loadRecentActivities() {
+            const recentActivitiesTable = document.getElementById('recentActivitiesTable');
+            
+            // Demo activities
+            const activities = [
+                { user: 'John Doe', action: 'Completed a quiz', date: '2023-10-28' },
+                { user: 'Jane Smith', action: 'Enrolled in a course', date: '2023-10-27' },
+                { user: 'Bob Johnson', action: 'Created an account', date: '2023-10-27' },
+                { user: 'Alice Williams', action: 'Completed a course', date: '2023-10-26' },
+                { user: 'Charlie Brown', action: 'Started a new course', date: '2023-10-26' }
+            ];
+            
+            // Populate activities table
+            recentActivitiesTable.innerHTML = '';
+            activities.forEach(activity => {
+                const date = new Date(activity.date);
+                const formattedDate = date.toLocaleDateString();
+                
+                recentActivitiesTable.innerHTML += `
+                    <tr>
+                        <td>${activity.user}</td>
+                        <td>${activity.action}</td>
+                        <td>${formattedDate}</td>
+                    </tr>
+                `;
+            });
+        }
+        
+        // Initialize user growth chart
+        function initUserGrowthChart() {
+            const ctx = document.getElementById('userGrowthChart').getContext('2d');
+            
+            // Generate dummy data
+            const labels = [];
+            const data = [];
+            
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                
+                // Generate some random data
+                const randomValue = Math.floor(Math.random() * 10) + 1;
+                data.push(data.length > 0 ? data[data.length - 1] + randomValue : randomValue);
+            }
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Registered Users',
+                        data: data,
+                        backgroundColor: 'rgba(78, 84, 200, 0.1)',
+                        borderColor: 'rgba(78, 84, 200, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: 'rgba(78, 84, 200, 1)',
+                        pointRadius: 0,
+                        pointHoverRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            titleColor: '#343a40',
+                            bodyColor: '#343a40',
+                            borderColor: 'rgba(0, 0, 0, 0.1)',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 0,
+                                autoSkip: true,
+                                maxTicksLimit: 7
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                borderDash: [3, 3]
+                            },
+                            ticks: {
+                                stepSize: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Initialize user activities chart
+        function initUserActivitiesChart() {
+            const ctx = document.getElementById('userActivitiesChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Courses Completed', 'Quizzes Taken', 'Videos Watched', 'Modules Started'],
+                    datasets: [{
+                        data: [35, 45, 70, 20],
+                        backgroundColor: [
+                            'rgba(78, 84, 200, 0.8)',
+                            'rgba(40, 167, 69, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(23, 162, 184, 0.8)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            titleColor: '#343a40',
+                            bodyColor: '#343a40',
+                            borderColor: 'rgba(0, 0, 0, 0.1)',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+    
+    <style>
+        .avatar-placeholder {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-600);
+        }
+    </style>
+</body>
+</html> 

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earning Quizzes - Earnly</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .quizzes-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quiz-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e9ecef;
+        }
+        
+        .quiz-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quiz-card.completed {
+            border-color: #28a745;
+            border-width: 2px;
+        }
+        
+        .quiz-card-header {
+            background: #f8f9fa;
+            padding: 1.25rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .quiz-title {
+            font-weight: 600;
+            color: #343a40;
+            margin-bottom: 0.5rem;
+        }
+        
+        .quiz-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.75rem;
+        }
+        
+        .quiz-stat-item {
+            display: flex;
+            align-items: center;
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+        
+        .quiz-stat-item i {
+            margin-right: 0.5rem;
+        }
+        
+        .quiz-card-body {
+            padding: 1.25rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .quiz-description {
+            color: #495057;
+            margin-bottom: 1.25rem;
+            flex-grow: 1;
+        }
+        
+        .quiz-reward {
+            display: inline-flex;
+            align-items: center;
+            background: #f1f5fe;
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            color: #2575fc;
+            font-weight: 600;
+            margin-top: auto;
+        }
+        
+        .quiz-reward i {
+            margin-right: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .quiz-card-footer {
+            padding: 1.25rem;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+        }
+        
+        .completed-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #28a745;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+        
+        .empty-state .icon {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state h4 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state p {
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+        
+        .loading-indicator {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+        
+        .loading-indicator .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div id="nav-placeholder"></div>
+    
+    <!-- Quizzes Header -->
+    <div class="quizzes-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1>Earn by Learning</h1>
+                    <p class="lead">Take quizzes, prove your knowledge, and earn rewards</p>
+                </div>
+                <div class="col-md-4 text-center text-md-end">
+                    <div class="wallet-badge">
+                        <i class="fas fa-wallet me-2"></i>
+                        <span id="walletBalance">0 coins</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quizzes Content -->
+    <div class="container">
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="loading-indicator">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>Loading quizzes...</p>
+        </div>
+        
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <h4>No Quizzes Available</h4>
+            <p>There are no quizzes available at the moment. Please check back later.</p>
+        </div>
+        
+        <!-- Quizzes Grid -->
+        <div id="quizzesContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" style="display: none;">
+            <!-- Quizzes will be loaded here -->
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Load navigation -->
+    <script>
+        $(function() {
+            $("#nav-placeholder").load("nav.html", function() {
+                // After loading nav.html, load its JavaScript
+                $.getScript("/nav.js", function() {
+                    // Now that both HTML and JS are loaded, initialize nav
+                    if (typeof initNavigation === 'function') {
+                        initNavigation();
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <script src="quizzes.js"></script>
+</body>
+</html> 

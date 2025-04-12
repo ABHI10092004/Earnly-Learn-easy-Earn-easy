@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earnly Admin - Transactions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <!-- Will be populated by admin-layout.js -->
+        </div>
+        
+        <!-- Content Area -->
+        <div class="admin-content">
+            <!-- Header -->
+            <div class="header" id="header">
+                <!-- Will be populated by admin-layout.js -->
+            </div>
+            
+            <!-- Main Content -->
+            <div class="main-content">
+                <div id="alertContainer"></div>
+                
+                <!-- Transactions Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon primary">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="totalTransactions">0</div>
+                                <div class="stat-label">Total Transactions</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon success">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="totalTokensAwarded">0</div>
+                                <div class="stat-label">Tokens Awarded</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon info">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="totalModuleCompletions">0</div>
+                                <div class="stat-label">Module Completions</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon warning">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="totalQuizCompletions">0</div>
+                                <div class="stat-label">Quiz Completions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Transactions List -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">All Transactions</h5>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-outline-primary" id="refreshTransactionsBtn">
+                                <i class="fas fa-sync-alt me-1"></i> Refresh
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" id="exportTransactionsBtn">
+                                <i class="fas fa-file-export me-1"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Filters -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <select class="form-select" id="typeFilter">
+                                    <option value="">All Transaction Types</option>
+                                    <option value="module_completion">Module Completion</option>
+                                    <option value="quiz_completion">Quiz Completion</option>
+                                    <option value="course_completion">Course Completion</option>
+                                    <option value="admin_adjustment">Admin Adjustment</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="dateFilter">
+                                    <option value="">All Time</option>
+                                    <option value="today">Today</option>
+                                    <option value="yesterday">Yesterday</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month">This Month</option>
+                                    <option value="year">This Year</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="userFilter" placeholder="Search by user...">
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100" id="applyFiltersBtn">Apply Filters</button>
+                            </div>
+                        </div>
+
+                        <!-- Transactions Table -->
+                        <div class="table-responsive">
+                            <table id="transactionsTable" class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>User</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Description</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionsTableBody">
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4">
+                                            <div class="loader"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction History Chart -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Transaction History</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="periodDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Last 30 Days
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="periodDropdown">
+                                <li><a class="dropdown-item active" href="#" data-period="30">Last 30 Days</a></li>
+                                <li><a class="dropdown-item" href="#" data-period="90">Last 3 Months</a></li>
+                                <li><a class="dropdown-item" href="#" data-period="180">Last 6 Months</a></li>
+                                <li><a class="dropdown-item" href="#" data-period="365">Last Year</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="transactionHistoryChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Detail Modal -->
+    <div class="modal fade" id="transactionDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Transaction Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="transaction-detail-content">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <div class="detail-label">Transaction ID:</div>
+                                    <div class="detail-value" id="detailTransactionId">--</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">User:</div>
+                                    <div class="detail-value" id="detailUser">--</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Type:</div>
+                                    <div class="detail-value" id="detailType">--</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Amount:</div>
+                                    <div class="detail-value" id="detailAmount">--</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <div class="detail-label">Date:</div>
+                                    <div class="detail-value" id="detailDate">--</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Status:</div>
+                                    <div class="detail-value" id="detailStatus">--</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Reference:</div>
+                                    <div class="detail-value" id="detailReference">--</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Balance After:</div>
+                                    <div class="detail-value" id="detailBalanceAfter">--</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Description:</div>
+                            <div class="detail-value" id="detailDescription">--</div>
+                        </div>
+                        <div class="detail-item" id="detailMetadataContainer" style="display: none;">
+                            <div class="detail-label">Additional Details:</div>
+                            <div class="detail-value">
+                                <pre id="detailMetadata">--</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="admin-layout.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize admin layout
+            const adminInfo = initAdminLayout('transactions');
+            if (!adminInfo) return;
+            
+            // Initialize DataTable
+            let transactionsTable;
+            
+            // Load initial data
+            loadTransactionStats();
+            loadTransactions();
+            renderTransactionHistoryChart('30');
+            
+            // Setup event listeners
+            document.getElementById('refreshTransactionsBtn').addEventListener('click', function() {
+                loadTransactions();
+                loadTransactionStats();
+            });
+            
+            document.getElementById('exportTransactionsBtn').addEventListener('click', function() {
+                exportTransactions();
+            });
+            
+            document.getElementById('applyFiltersBtn').addEventListener('click', function() {
+                loadTransactions();
+            });
+            
+            // Setup chart period dropdown
+            document.querySelectorAll('[data-period]').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const period = this.getAttribute('data-period');
+                    document.getElementById('periodDropdown').textContent = this.textContent;
+                    
+                    // Remove active class from all items
+                    document.querySelectorAll('[data-period]').forEach(i => {
+                        i.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    
+                    renderTransactionHistoryChart(period);
+                });
+            });
+            
+            // Function to load transaction statistics
+            async function loadTransactionStats() {
+                try {
+                    const response = await fetch('/api/admin/transactions/stats', {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                        }
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to load transaction stats');
+                    
+                    const stats = await response.json();
+                    
+                    document.getElementById('totalTransactions').textContent = stats.totalTransactions || 0;
+                    document.getElementById('totalTokensAwarded').textContent = stats.totalTokensAwarded || 0;
+                    document.getElementById('totalModuleCompletions').textContent = stats.moduleCompletions || 0;
+                    document.getElementById('totalQuizCompletions').textContent = stats.quizCompletions || 0;
+                    
+                } catch (error) {
+                    console.error('Error loading transaction stats:', error);
+                    showAlert('Failed to load transaction statistics', 'danger');
+                }
+            }
+            
+            // Function to load transactions
+            async function loadTransactions() {
+                try {
+                    // Get filter values
+                    const typeFilter = document.getElementById('typeFilter').value;
+                    const dateFilter = document.getElementById('dateFilter').value;
+                    const userFilter = document.getElementById('userFilter').value;
+                    
+                    // Build URL with query parameters
+                    let url = '/api/admin/transactions?';
+                    if (typeFilter) url += `type=${typeFilter}&`;
+                    if (dateFilter) url += `period=${dateFilter}&`;
+                    if (userFilter) url += `user=${userFilter}&`;
+                    
+                    // Show loading state
+                    document.getElementById('transactionsTableBody').innerHTML = `
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="loader"></div>
+                            </td>
+                        </tr>
+                    `;
+                    
+                    const response = await fetch(url, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                        }
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to load transactions');
+                    
+                    const transactions = await response.json();
+                    
+                    renderTransactionsTable(transactions);
+                    
+                } catch (error) {
+                    console.error('Error loading transactions:', error);
+                    showAlert('Failed to load transactions', 'danger');
+                    
+                    document.getElementById('transactionsTableBody').innerHTML = `
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                Error loading transactions. Please try again.
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+            
+            // Function to render transactions table
+            function renderTransactionsTable(transactions) {
+                if (!transactions || transactions.length === 0) {
+                    document.getElementById('transactionsTableBody').innerHTML = `
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                No transactions found.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                const tableBody = document.getElementById('transactionsTableBody');
+                tableBody.innerHTML = '';
+                
+                transactions.forEach(transaction => {
+                    const row = document.createElement('tr');
+                    
+                    // Format date
+                    const date = new Date(transaction.createdAt);
+                    const formattedDate = date.toLocaleString();
+                    
+                    // Format status badge
+                    let statusBadge = '';
+                    switch (transaction.status) {
+                        case 'completed':
+                            statusBadge = '<span class="badge bg-success">Completed</span>';
+                            break;
+                        case 'pending':
+                            statusBadge = '<span class="badge bg-warning">Pending</span>';
+                            break;
+                        case 'failed':
+                            statusBadge = '<span class="badge bg-danger">Failed</span>';
+                            break;
+                        default:
+                            statusBadge = '<span class="badge bg-secondary">Unknown</span>';
+                    }
+                    
+                    // Format type badge
+                    let typeBadge = '';
+                    switch (transaction.type) {
+                        case 'module_completion':
+                            typeBadge = '<span class="badge bg-primary">Module</span>';
+                            break;
+                        case 'quiz_completion':
+                            typeBadge = '<span class="badge bg-info">Quiz</span>';
+                            break;
+                        case 'course_completion':
+                            typeBadge = '<span class="badge bg-success">Course</span>';
+                            break;
+                        case 'admin_adjustment':
+                            typeBadge = '<span class="badge bg-warning">Admin</span>';
+                            break;
+                        default:
+                            typeBadge = '<span class="badge bg-secondary">Other</span>';
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${transaction._id}</td>
+                        <td>${transaction.user?.username || transaction.user?._id || 'Unknown'}</td>
+                        <td>${typeBadge}</td>
+                        <td>${transaction.amount >= 0 ? '+' : ''}${transaction.amount} tokens</td>
+                        <td>${transaction.description || 'No description'}</td>
+                        <td>${formattedDate}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary view-transaction" data-id="${transaction._id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+                
+                // Initialize DataTable if not already initialized
+                if (!transactionsTable) {
+                    // Load DataTable
+                    transactionsTable = $('#transactionsTable').DataTable({
+                        pageLength: 10,
+                        ordering: true,
+                        responsive: true,
+                        language: {
+                            search: "Search transactions:",
+                            lengthMenu: "Show _MENU_ transactions per page",
+                            info: "Showing _START_ to _END_ of _TOTAL_ transactions",
+                            paginate: {
+                                first: "First",
+                                last: "Last",
+                                next: "<i class='fas fa-chevron-right'></i>",
+                                previous: "<i class='fas fa-chevron-left'></i>"
+                            }
+                        }
+                    });
+                } else {
+                    // Reload DataTable if already initialized
+                    transactionsTable.clear().draw();
+                    transactionsTable.rows.add($(tableBody).find('tr')).draw();
+                }
+                
+                // Setup view transaction button click handlers
+                document.querySelectorAll('.view-transaction').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const transactionId = this.getAttribute('data-id');
+                        showTransactionDetails(transactionId);
+                    });
+                });
+            }
+            
+            // Function to show transaction details
+            async function showTransactionDetails(transactionId) {
+                try {
+                    const response = await fetch(`/api/admin/transactions/${transactionId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                        }
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to load transaction details');
+                    
+                    const transaction = await response.json();
+                    
+                    // Format date
+                    const date = new Date(transaction.createdAt);
+                    const formattedDate = date.toLocaleString();
+                    
+                    // Update modal content
+                    document.getElementById('detailTransactionId').textContent = transaction._id;
+                    document.getElementById('detailUser').textContent = transaction.user?.username || transaction.user?._id || 'Unknown';
+                    document.getElementById('detailType').textContent = transaction.type || 'Unknown';
+                    document.getElementById('detailAmount').textContent = `${transaction.amount >= 0 ? '+' : ''}${transaction.amount} tokens`;
+                    document.getElementById('detailDate').textContent = formattedDate;
+                    document.getElementById('detailStatus').textContent = transaction.status || 'Unknown';
+                    document.getElementById('detailDescription').textContent = transaction.description || 'No description';
+                    document.getElementById('detailReference').textContent = transaction.reference || 'None';
+                    document.getElementById('detailBalanceAfter').textContent = `${transaction.balanceAfter} tokens`;
+                    
+                    // Show metadata if available
+                    const metadataContainer = document.getElementById('detailMetadataContainer');
+                    const metadataElement = document.getElementById('detailMetadata');
+                    
+                    if (transaction.metadata && Object.keys(transaction.metadata).length > 0) {
+                        metadataElement.textContent = JSON.stringify(transaction.metadata, null, 2);
+                        metadataContainer.style.display = 'block';
+                    } else {
+                        metadataContainer.style.display = 'none';
+                    }
+                    
+                    // Show modal
+                    const modal = new bootstrap.Modal(document.getElementById('transactionDetailModal'));
+                    modal.show();
+                    
+                } catch (error) {
+                    console.error('Error loading transaction details:', error);
+                    showAlert('Failed to load transaction details', 'danger');
+                }
+            }
+            
+            // Function to render transaction history chart
+            async function renderTransactionHistoryChart(period) {
+                try {
+                    const response = await fetch(`/api/admin/transactions/history?period=${period}`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                        }
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to load transaction history');
+                    
+                    const history = await response.json();
+                    
+                    // Destroy existing chart if it exists
+                    if (window.transactionChart) {
+                        window.transactionChart.destroy();
+                    }
+                    
+                    // Create new chart
+                    const ctx = document.getElementById('transactionHistoryChart').getContext('2d');
+                    window.transactionChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: history.labels,
+                            datasets: [
+                                {
+                                    label: 'Total Transactions',
+                                    data: history.transactions,
+                                    borderColor: '#5e72e4',
+                                    backgroundColor: 'rgba(94, 114, 228, 0.1)',
+                                    borderWidth: 2,
+                                    fill: true,
+                                    tension: 0.3
+                                },
+                                {
+                                    label: 'Tokens Awarded',
+                                    data: history.tokensAwarded,
+                                    borderColor: '#2dce89',
+                                    backgroundColor: 'rgba(45, 206, 137, 0.1)',
+                                    borderWidth: 2,
+                                    fill: true,
+                                    tension: 0.3
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                tooltip: {
+                                    mode: 'index',
+                                    intersect: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            },
+                            interaction: {
+                                mode: 'nearest',
+                                axis: 'x',
+                                intersect: false
+                            }
+                        }
+                    });
+                    
+                } catch (error) {
+                    console.error('Error rendering transaction history chart:', error);
+                    showAlert('Failed to load transaction history chart', 'danger');
+                }
+            }
+            
+            // Function to export transactions
+            function exportTransactions() {
+                // Get filter values
+                const typeFilter = document.getElementById('typeFilter').value;
+                const dateFilter = document.getElementById('dateFilter').value;
+                const userFilter = document.getElementById('userFilter').value;
+                
+                // Build export URL with query parameters
+                let url = '/api/admin/transactions/export?format=csv';
+                if (typeFilter) url += `&type=${typeFilter}`;
+                if (dateFilter) url += `&period=${dateFilter}`;
+                if (userFilter) url += `&user=${userFilter}`;
+                
+                // Add authorization token to URL
+                url += `&token=${localStorage.getItem('adminToken')}`;
+                
+                // Open in new tab to trigger download
+                window.open(url, '_blank');
+            }
+        });
+    </script>
+</body>
+</html> 

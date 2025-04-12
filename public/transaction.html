@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet Transactions - Earnly</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .wallet-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .wallet-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            padding: 2rem;
+        }
+        
+        .wallet-balance {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #6a11cb;
+            margin-bottom: 1rem;
+        }
+        
+        .wallet-address {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 5px;
+            word-break: break-all;
+        }
+        
+        .transaction-list {
+            margin-top: 2rem;
+        }
+        
+        .transaction-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .transaction-hash {
+            font-family: monospace;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .transaction-type {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .transaction-type.reward {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .transaction-amount {
+            font-weight: 600;
+            color: #198754;
+        }
+        
+        .wallet-connect-card {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .wallet-icon {
+            font-size: 3rem;
+            color: #6a11cb;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn-connect {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 100px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-connect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+        
+        .btn-claim {
+            background: #ffc107;
+            color: #212529;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 100px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-claim:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background: #ffca2c;
+        }
+        
+        .claim-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Navigation -->
+    <div id="nav-placeholder"></div>
+    
+    <!-- Wallet Header -->
+    <div class="wallet-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1>Your Wallet</h1>
+                    <p class="lead">Connect your Petra wallet and claim your rewards</p>
+                </div>
+                <div class="col-md-4 text-center text-md-end">
+                    <div class="wallet-badge">
+                        <i class="fas fa-wallet me-2"></i>
+                        <span id="earnlyBalance">0 coins</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Wallet Content -->
+    <div class="container">
+        <!-- Wallet Not Connected State -->
+        <div id="walletNotConnected" class="wallet-card wallet-connect-card">
+            <div class="wallet-icon">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <h3 class="mb-4">Connect Your Petra Wallet</h3>
+            <p class="mb-4">Connect your Petra wallet to claim your earned rewards on the Aptos Testnet.</p>
+            <button id="connectWalletBtn" class="btn btn-connect">
+                <i class="fas fa-plug me-2"></i>Connect Petra Wallet
+            </button>
+        </div>
+        
+        <!-- Wallet Connected State -->
+        <div id="walletConnected" class="row" style="display: none;">
+            <div class="col-md-8">
+                <div class="wallet-card">
+                    <h3 class="mb-4">Wallet Details</h3>
+                    <div class="mb-4">
+                        <p class="text-muted mb-1">Your Aptos Address:</p>
+                        <div class="wallet-address mb-3" id="walletAddress">Loading...</div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Aptos Balance:</span>
+                            <span class="fw-bold" id="aptosBalance">Loading...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="claim-info">
+                        <p class="mb-1"><i class="fas fa-info-circle me-2"></i>You can claim your rewards on Aptos Testnet.</p>
+                        <p class="mb-0">Available to claim: <span id="claimableAmount">0</span> APT</p>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button id="claimRewardsBtn" class="btn btn-claim" disabled>
+                            <i class="fas fa-coins me-2"></i>Claim Rewards
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="wallet-card">
+                    <h3 class="mb-4">Transaction History</h3>
+                    <div id="noTransactions" class="text-center py-4 text-muted">
+                        <i class="fas fa-history mb-3" style="font-size: 2rem;"></i>
+                        <p>No transactions yet. Claim rewards to see them here.</p>
+                    </div>
+                    <div id="transactionList" class="transaction-list" style="display: none;">
+                        <!-- Transactions will be added here dynamically -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="wallet-card">
+                    <h3 class="mb-4">Earnly Rewards</h3>
+                    <div class="wallet-balance" id="userTokens">0</div>
+                    <p class="text-muted">Total earned tokens</p>
+                    
+                    <hr>
+                    
+                    <h5 class="mb-3">Conversion Rate</h5>
+                    <p>1000 tokens = 1 APT</p>
+                    
+                    <hr>
+                    
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        This is running on the Aptos Testnet. Rewards are for testing purposes only.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Load navigation -->
+    <script>
+        $(function() {
+            $("#nav-placeholder").load("nav.html", function() {
+                // After loading nav.html, load its JavaScript
+                $.getScript("/nav.js", function() {
+                    // Now that both HTML and JS are loaded, initialize nav
+                    if (typeof initNavigation === 'function') {
+                        initNavigation();
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <script>
+        // DOM Elements
+        const walletNotConnected = document.getElementById('walletNotConnected');
+        const walletConnected = document.getElementById('walletConnected');
+        const connectWalletBtn = document.getElementById('connectWalletBtn');
+        const claimRewardsBtn = document.getElementById('claimRewardsBtn');
+        const walletAddress = document.getElementById('walletAddress');
+        const aptosBalance = document.getElementById('aptosBalance');
+        const userTokens = document.getElementById('userTokens');
+        const earnlyBalance = document.getElementById('earnlyBalance');
+        const claimableAmount = document.getElementById('claimableAmount');
+        const noTransactions = document.getElementById('noTransactions');
+        const transactionList = document.getElementById('transactionList');
+        
+        // State
+        let wallet = null;
+        let userWalletBalance = 0;
+        let transactions = [];
+        
+        // Initialize when DOM content is loaded
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log("🔄 Initializing wallet page...");
+            console.log("📍 Current URL:", window.location.href);
+            console.log("🌐 Current origin:", window.location.origin);
+            
+            // Create a debug container
+            const debugContainer = document.createElement('div');
+            debugContainer.id = 'debugContainer';
+            debugContainer.style.display = 'none';
+            debugContainer.innerHTML = `
+                <div class="wallet-card" style="display: none;">
+                    <h3 class="mb-3">API Debug Info</h3>
+                    <button class="btn btn-sm btn-secondary mb-3" id="toggleDebugBtn">Show Debug Info</button>
+                    <div id="debugInfo" style="display:none">
+                        <div class="mb-3">
+                            <strong>Current URL:</strong> <span id="debugCurrentUrl">${window.location.href}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>API Origin:</strong> <span id="debugApiOrigin">${window.location.origin}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>API Status:</strong> <span id="debugApiStatus">Unknown</span>
+                        </div>
+                        <div class="mb-3">
+                            <button class="btn btn-sm btn-primary me-2" id="testPingBtn">Test Ping</button>
+                            <button class="btn btn-sm btn-primary" id="testAuthBtn">Test Auth</button>
+                        </div>
+                        <div>
+                            <pre id="debugOutput" class="bg-light p-3" style="max-height: 300px; overflow: auto"></pre>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add debug container after wallet content
+            document.querySelector('.container').appendChild(debugContainer);
+            
+            // Set up debug toggle
+            document.getElementById('toggleDebugBtn').addEventListener('click', () => {
+                const debugInfo = document.getElementById('debugInfo');
+                const toggleBtn = document.getElementById('toggleDebugBtn');
+                if (debugInfo.style.display === 'none') {
+                    debugInfo.style.display = 'block';
+                    toggleBtn.textContent = 'Hide Debug Info';
+                } else {
+                    debugInfo.style.display = 'none';
+                    toggleBtn.textContent = 'Show Debug Info';
+                }
+            });
+            
+            // Set up ping test button
+            document.getElementById('testPingBtn').addEventListener('click', async () => {
+                const debugOutput = document.getElementById('debugOutput');
+                const debugApiStatus = document.getElementById('debugApiStatus');
+                
+                debugOutput.textContent = 'Testing ping...';
+                debugApiStatus.textContent = 'Testing...';
+                
+                try {
+                    const pingUrl = window.location.origin + '/api/ping';
+                    debugOutput.textContent += `\nFetching: ${pingUrl}`;
+                    
+                    const pingResponse = await fetch(pingUrl, {
+                        method: 'GET',
+                        // Add cache busting to prevent caching
+                        headers: {
+                            'Cache-Control': 'no-cache',
+                            'Pragma': 'no-cache'
+                        }
+                    });
+                    
+                    // Log response info
+                    debugOutput.textContent += `\nStatus: ${pingResponse.status} ${pingResponse.statusText}`;
+                    debugOutput.textContent += `\nHeaders:`;
+                    pingResponse.headers.forEach((value, key) => {
+                        debugOutput.textContent += `\n  ${key}: ${value}`;
+                    });
+                    
+                    // Get response text
+                    const responseText = await pingResponse.text();
+                    debugOutput.textContent += `\nResponse text (first 100 chars): ${responseText.substring(0, 100)}`;
+                    
+                    // Try to parse as JSON if it looks like JSON
+                    if (responseText.trim().startsWith('{')) {
+                        try {
+                            const data = JSON.parse(responseText);
+                            debugOutput.textContent += `\nParsed JSON: ${JSON.stringify(data, null, 2)}`;
+                            debugApiStatus.textContent = 'Working';
+                            debugApiStatus.className = 'text-success';
+                        } catch (e) {
+                            debugOutput.textContent += `\nFailed to parse JSON: ${e.message}`;
+                            debugApiStatus.textContent = 'Error - Not valid JSON';
+                            debugApiStatus.className = 'text-danger';
+                        }
+                    } else {
+                        debugOutput.textContent += `\nResponse is not JSON`;
+                        debugApiStatus.textContent = 'Error - Not JSON';
+                        debugApiStatus.className = 'text-danger';
+                    }
+                } catch (error) {
+                    debugOutput.textContent += `\nError: ${error.message}`;
+                    debugApiStatus.textContent = 'Error';
+                    debugApiStatus.className = 'text-danger';
+                }
+            });
+            
+            // Set up auth test button
+            document.getElementById('testAuthBtn').addEventListener('click', async () => {
+                const debugOutput = document.getElementById('debugOutput');
+                const token = localStorage.getItem('token');
+                
+                if (!token) {
+                    debugOutput.textContent = 'No token found in localStorage. Please log in first.';
+                    return;
+                }
+                
+                debugOutput.textContent = 'Testing auth...';
+                debugOutput.textContent += `\nToken (first 10 chars): ${token.substring(0, 10)}...`;
+                
+                try {
+                    const authUrl = window.location.origin + '/api/auth-test';
+                    debugOutput.textContent += `\nFetching: ${authUrl}`;
+                    
+                    const authResponse = await fetch(authUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Cache-Control': 'no-cache',
+                            'Pragma': 'no-cache'
+                        }
+                    });
+                    
+                    // Log response info
+                    debugOutput.textContent += `\nStatus: ${authResponse.status} ${authResponse.statusText}`;
+                    debugOutput.textContent += `\nHeaders:`;
+                    authResponse.headers.forEach((value, key) => {
+                        debugOutput.textContent += `\n  ${key}: ${value}`;
+                    });
+                    
+                    // Get response text
+                    const responseText = await authResponse.text();
+                    debugOutput.textContent += `\nResponse text (first 100 chars): ${responseText.substring(0, 100)}`;
+                    
+                    // Try to parse as JSON if it looks like JSON
+                    if (responseText.trim().startsWith('{')) {
+                        try {
+                            const data = JSON.parse(responseText);
+                            debugOutput.textContent += `\nParsed JSON: ${JSON.stringify(data, null, 2)}`;
+                        } catch (e) {
+                            debugOutput.textContent += `\nFailed to parse JSON: ${e.message}`;
+                        }
+                    } else {
+                        debugOutput.textContent += `\nResponse is not JSON`;
+                    }
+                } catch (error) {
+                    debugOutput.textContent += `\nError: ${error.message}`;
+                }
+            });
+            
+            // Add test button for reward-user endpoint
+            document.getElementById('testAuthBtn').insertAdjacentHTML('afterend', 
+                '<button class="btn btn-sm btn-primary me-2" id="testRewardEndpointBtn">Test Reward Endpoint</button>' +
+                '<button class="btn btn-sm btn-info me-2" id="testAptosClientBtn">Test Aptos Client</button>');
+            
+            document.getElementById('testRewardEndpointBtn').addEventListener('click', async () => {
+                const debugOutput = document.getElementById('debugOutput');
+                const token = localStorage.getItem('token');
+                
+                if (!token) {
+                    debugOutput.textContent = 'No token found in localStorage. Please log in first.';
+                    return;
+                }
+                
+                debugOutput.textContent = 'Testing reward-user endpoint...';
+                
+                if (!window.aptos) {
+                    debugOutput.textContent += '\nPetra wallet not installed or detected. Please install the wallet first.';
+                    return;
+                }
+                
+                try {
+                    // Check if wallet is connected
+                    if (typeof window.aptos.isConnected === 'function') {
+                        const isConnected = await window.aptos.isConnected();
+                        if (!isConnected) {
+                            debugOutput.textContent += '\nWallet not connected. Attempting to connect...';
+                            await window.aptos.connect();
+                            debugOutput.textContent += '\nWallet connected successfully.';
+                        } else {
+                            debugOutput.textContent += '\nWallet already connected.';
+                        }
+                    }
+                    
+                    // Get the wallet address
+                    const account = await window.aptos.account();
+                    const walletAddress = account.address;
+                    debugOutput.textContent += `\nWallet address: ${walletAddress}`;
+                    
+                    // Test endpoint with GET request first to check if it exists
+                    debugOutput.textContent += '\nTesting if endpoint exists...';
+                    try {
+                        const testResponse = await fetch(window.location.origin + '/api/reward-user', {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Cache-Control': 'no-cache'
+                            }
+                        });
+                        
+                        debugOutput.textContent += `\nGET test response: ${testResponse.status} ${testResponse.statusText}`;
+                    } catch (testError) {
+                        debugOutput.textContent += `\nGET test error: ${testError.message}`;
+                    }
+                    
+                    // Now try with a minimal POST
+                    debugOutput.textContent += '\nSending minimal POST request to reward-user endpoint...';
+                    const probeResponse = await fetch(window.location.origin + '/api/reward-user', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        },
+                        body: JSON.stringify({ wallet: walletAddress })
+                    });
+                    
+                    debugOutput.textContent += `\nPOST response status: ${probeResponse.status} ${probeResponse.statusText}`;
+                    
+                    // Log headers
+                    debugOutput.textContent += '\nResponse headers:';
+                    probeResponse.headers.forEach((value, key) => {
+                        debugOutput.textContent += `\n  ${key}: ${value}`;
+                    });
+                    
+                    // Try to get the response text
+                    const probeText = await probeResponse.text();
+                    const shortText = probeText.length > 300 
+                        ? probeText.substring(0, 300) + '...' 
+                        : probeText;
+                    debugOutput.textContent += `\nResponse text: ${shortText}`;
+                    
+                    // Check if it's HTML
+                    if (probeText.includes('<!DOCTYPE html>') || probeText.includes('<html')) {
+                        debugOutput.textContent += '\nReceived HTML response (error page) instead of JSON';
+                        
+                        // Extract title
+                        const titleMatch = probeText.match(/<title>(.*?)<\/title>/i);
+                        if (titleMatch && titleMatch[1]) {
+                            debugOutput.textContent += `\nError page title: ${titleMatch[1]}`;
+                        }
+                        
+                        // Try to extract stack trace
+                        const stackMatch = probeText.match(/<pre>([\s\S]*?)<\/pre>/i);
+                        if (stackMatch && stackMatch[1]) {
+                            debugOutput.textContent += `\nServer error stack trace:\n${stackMatch[1]}`;
+                        }
+                    } else if (probeText.trim().startsWith('{')) {
+                        // Try to parse JSON
+                        try {
+                            const jsonData = JSON.parse(probeText);
+                            debugOutput.textContent += `\nParsed JSON response: ${JSON.stringify(jsonData, null, 2)}`;
+                        } catch (jsonError) {
+                            debugOutput.textContent += `\nFailed to parse JSON: ${jsonError.message}`;
+                        }
+                    }
+                } catch (error) {
+                    debugOutput.textContent += `\nError testing reward endpoint: ${error.message}`;
+                }
+            });
+            
+            document.getElementById('testAptosClientBtn').addEventListener('click', async () => {
+                const debugOutput = document.getElementById('debugOutput');
+                const token = localStorage.getItem('token');
+                
+                if (!token) {
+                    debugOutput.textContent = 'No token found in localStorage. Please log in first.';
+                    return;
+                }
+                
+                debugOutput.textContent = 'Testing Aptos client initialization...';
+                
+                try {
+                    // Create a test endpoint to check Aptos client status
+                    const testUrl = window.location.origin + '/api/test-aptos-client';
+                    debugOutput.textContent += `\nFetching: ${testUrl}`;
+                    
+                    const response = await fetch(testUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Cache-Control': 'no-cache'
+                        }
+                    });
+                    
+                    debugOutput.textContent += `\nResponse status: ${response.status} ${response.statusText}`;
+                    
+                    const responseText = await response.text();
+                    debugOutput.textContent += `\nResponse text: ${responseText.substring(0, 500)}`;
+                    
+                    // Try to parse as JSON if possible
+                    if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
+                        try {
+                            const data = JSON.parse(responseText);
+                            debugOutput.textContent += `\nParsed JSON: ${JSON.stringify(data, null, 2)}`;
+                            
+                            if (data.clientInitialized) {
+                                debugOutput.textContent += '\n✅ Aptos client is properly initialized';
+                            } else {
+                                debugOutput.textContent += '\n❌ Aptos client is NOT properly initialized';
+                                
+                                if (data.error) {
+                                    debugOutput.textContent += `\nError: ${data.error}`;
+                                }
+                            }
+                        } catch (e) {
+                            debugOutput.textContent += `\nFailed to parse JSON: ${e.message}`;
+                        }
+                    } else {
+                        debugOutput.textContent += '\nResponse is not JSON';
+                    }
+                } catch (error) {
+                    debugOutput.textContent += `\nError testing Aptos client: ${error.message}`;
+                }
+            });
+            
+            // Show the debug container
+            debugContainer.style.display = 'block';
+            
+            setTimeout(async () => {
+                await detectPetraWallet();
+                await checkWalletConnection();
+                await getUserData();
+                
+                // Set up event listeners
+                connectWalletBtn.addEventListener('click', connectWallet);
+                claimRewardsBtn.addEventListener('click', claimRewards);
+            }, 500); // Short delay to ensure wallet extension is detected
+        });
+        
+        // Detect if Petra wallet extension is installed
+        async function detectPetraWallet() {
+            console.log("🔍 Checking for Petra wallet extension...");
+            
+            // Check if window.aptos exists
+            if (window.aptos) {
+                console.log("✅ Petra wallet extension detected!");
+                connectWalletBtn.textContent = "Connect Petra Wallet";
+                connectWalletBtn.disabled = false;
+                return true;
+            } else {
+                console.log("❌ Petra wallet extension not found");
+                
+                // Check if on mobile
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                
+                if (isMobile) {
+                    connectWalletBtn.textContent = "Open Petra Wallet App";
+                    connectWalletBtn.addEventListener('click', () => {
+                        window.location.href = "https://petra.app/download";
+                    });
+                } else {
+                    connectWalletBtn.textContent = "Install Petra Wallet";
+                    connectWalletBtn.addEventListener('click', () => {
+                        window.open("https://petra.app/", "_blank");
+                    });
+                }
+                return false;
+            }
+        }
+        
+        // Check if wallet is already connected
+        async function checkWalletConnection() {
+            console.log("🔄 Checking wallet connection status...");
+            
+            // Ensure Petra wallet is available
+            if (!window.aptos) {
+                console.log("❌ Petra wallet not available");
+                return;
+            }
+            
+            try {
+                // Check if already connected using isConnected method if available
+                if (typeof window.aptos.isConnected === 'function') {
+                    const isConnected = await window.aptos.isConnected();
+                    if (isConnected) {
+                        // Get account address
+                        const account = await window.aptos.account();
+                        wallet = account.address;
+                        console.log("✅ Wallet already connected:", wallet);
+                        updateUIForConnectedWallet();
+                        await getAptosBalance();
+                        return;
+                    }
+                }
+                
+                // Fallback method: try to connect and catch if not connected
+                const response = await window.aptos.connect();
+                wallet = response.address;
+                console.log("✅ Connected to wallet:", wallet);
+                updateUIForConnectedWallet();
+                await getAptosBalance();
+            } catch (error) {
+                console.log("ℹ️ Wallet not connected:", error.message);
+            }
+        }
+        
+        // Connect wallet
+        async function connectWallet() {
+            console.log("🔄 Connecting to Petra wallet...");
+            
+            if (!window.aptos) {
+                console.log("❌ Petra wallet not available");
+                alert("Please install the Petra Wallet extension first!");
+                return;
+            }
+            
+            try {
+                // Show loading state
+                connectWalletBtn.disabled = true;
+                connectWalletBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Connecting...';
+                
+                // Connect to wallet
+                const response = await window.aptos.connect();
+                wallet = response.address;
+                console.log("✅ Connected to wallet:", wallet);
+                
+                // Update UI
+                updateUIForConnectedWallet();
+                await getAptosBalance();
+                await getUserData();
+                
+                // Reset button state
+                connectWalletBtn.innerHTML = '<i class="fas fa-plug me-2"></i>Connect Petra Wallet';
+                connectWalletBtn.disabled = false;
+            } catch (error) {
+                console.error("❌ Error connecting wallet:", error);
+                alert("Failed to connect wallet: " + (error.message || "Unknown error"));
+                
+                // Reset button state
+                connectWalletBtn.innerHTML = '<i class="fas fa-plug me-2"></i>Connect Petra Wallet';
+                connectWalletBtn.disabled = false;
+            }
+        }
+        
+        // Get user data (tokens, transaction history)
+        async function getUserData() {
+            console.log("🔄 Fetching user data...");
+            
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    console.log("❌ No auth token found");
+                    alert("Please log in to view your rewards.");
+                    return;
+                }
+                
+                // Fetch user profile data
+                console.log("🔄 Fetching user profile from /api/user/profile");
+                const response = await fetch(window.location.origin + '/api/user/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log("📡 User profile response status:", response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("❌ Error fetching user data:", response.status, errorText);
+                    throw new Error(`Failed to fetch user data: ${response.status} - ${errorText}`);
+                }
+                
+                const userData = await response.json();
+                console.log("✅ User data received:", userData);
+                
+                // Update token display
+                userTokens.textContent = userData.wallet || 0;
+                earnlyBalance.textContent = `${userData.wallet || 0} tokens`;
+                
+                // Calculate claimable amount (tokens/1000 = APT)
+                const tokens = parseInt(userData.wallet) || 0;
+                const claimable = (tokens / 1000).toFixed(6);
+                claimableAmount.textContent = claimable;
+                
+                // Enable claim button if there are any tokens and wallet is connected
+                claimRewardsBtn.disabled = tokens <= 0 || !wallet;
+                
+                // Fetch transaction history
+                console.log("🔄 Fetching transaction history from /api/user/transactions");
+                const txResponse = await fetch(window.location.origin + '/api/user/transactions', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log("📡 Transaction history response status:", txResponse.status);
+                
+                if (txResponse.ok) {
+                    const txData = await txResponse.json();
+                    console.log("📡 Transaction response data:", txData);
+                    
+                    if (txData.transactions && txData.transactions.length > 0) {
+                        transactions = txData.transactions;
+                        console.log("✅ Transaction history received:", transactions.length, "transactions");
+                        renderTransactions();
+                    } else {
+                        console.log("ℹ️ No transactions found");
+                    }
+                } else {
+                    const errorText = await txResponse.text();
+                    console.log("⚠️ Failed to fetch transactions:", txResponse.status, errorText);
+                }
+            } catch (error) {
+                console.error("❌ Error fetching user data:", error);
+                showError("Failed to load your account data. Please try refreshing the page.");
+            }
+        }
+        
+        // Get Aptos wallet balance
+        async function getAptosBalance() {
+            if (!wallet) {
+                console.log("ℹ️ No wallet connected, can't fetch balance");
+                return;
+            }
+            
+            try {
+                console.log("🔄 Fetching APT balance for", wallet);
+                
+                // Set loading state
+                aptosBalance.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
+                
+                // Get account resources
+                const response = await window.aptos.getAccount();
+                
+                // Display balance
+                if (response.balance) {
+                    const balanceStr = response.balance.toString() || "0";
+                    const balance = parseInt(balanceStr) / 100000000; // Convert from octas to APT
+                    console.log("✅ APT balance:", balance);
+                    aptosBalance.textContent = `${balance.toFixed(4)} APT`;
+                } else {
+                    // Fallback in case response format changes
+                    console.log("⚠️ Balance not found in response, using 0");
+                    aptosBalance.textContent = "0 APT";
+                }
+            } catch (error) {
+                console.error("❌ Error fetching APT balance:", error);
+                aptosBalance.textContent = "Error fetching balance";
+            }
+        }
+        
+        // Function to claim rewards
+        async function claimRewards(event) {
+            event.preventDefault();
+            console.log("🔄 Claim rewards process started");
+            
+            const debugOutput = document.getElementById('debugOutput');
+            const debugInfo = document.getElementById('debugInfo');
+            if (debugInfo) {
+                debugInfo.style.display = 'block';
+                document.getElementById('toggleDebugBtn').textContent = 'Hide Debug Info';
+                debugOutput.textContent = '🔄 Starting claim rewards process...';
+            }
+            
+            // Show loading indicator
+            const claimButton = document.getElementById('claimRewardsBtn');
+            const originalButtonText = claimButton.textContent;
+            claimButton.disabled = true;
+            claimButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+            
+            // Check if error element exists, create if not
+            let claimError = document.getElementById('claimError');
+            if (!claimError) {
+                claimError = document.createElement('div');
+                claimError.id = 'claimError';
+                claimError.className = 'alert alert-danger mt-3';
+                claimError.style.display = 'none';
+                claimButton.parentNode.appendChild(claimError);
+            }
+            
+            // Reset error message
+            claimError.textContent = '';
+            claimError.style.display = 'none';
+            
+            try {
+                // Verify wallet is connected
+                if (!window.aptos) {
+                    throw new Error("Petra wallet not found. Please install the extension and refresh.");
+                }
+                
+                if (debugOutput) debugOutput.textContent += '\n✅ Petra wallet is available';
+                
+                // Check if wallet is connected
+                const isConnected = await window.aptos.isConnected();
+                if (!isConnected) {
+                    if (debugOutput) debugOutput.textContent += '\n❌ Wallet not connected. Attempting to connect...';
+                    try {
+                        await window.aptos.connect();
+                        if (debugOutput) debugOutput.textContent += '\n✅ Wallet connection successful';
+                    } catch (connectionError) {
+                        if (debugOutput) debugOutput.textContent += `\n❌ Wallet connection failed: ${connectionError.message}`;
+                        throw new Error(`Failed to connect wallet: ${connectionError.message}`);
+                    }
+                } else {
+                    if (debugOutput) debugOutput.textContent += '\n✅ Wallet already connected';
+                }
+                
+                // Get wallet address
+                const account = await window.aptos.account();
+                const walletAddress = account.address;
+                if (debugOutput) debugOutput.textContent += `\n📋 Wallet address: ${walletAddress}`;
+                
+                // Verify wallet address format
+                if (!walletAddress.startsWith('0x') || walletAddress.length !== 66) {
+                    const errorMsg = `Invalid wallet address format: ${walletAddress}. It should start with '0x' and be 66 characters long.`;
+                    if (debugOutput) debugOutput.textContent += `\n❌ ${errorMsg}`;
+                    throw new Error(errorMsg);
+                }
+                
+                // Get token from localStorage
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    if (debugOutput) debugOutput.textContent += '\n❌ Authentication token not found';
+                    throw new Error("Authentication token not found. Please log in again.");
+                }
+                if (debugOutput) debugOutput.textContent += `\n🔑 Token available (first 10 chars): ${token.substring(0, 10)}...`;
+                
+                // Get user data to confirm balance
+                if (debugOutput) debugOutput.textContent += '\n🔄 Fetching user data to confirm balance...';
+                
+                let userWalletBalance = null;
+                try {
+                    // First check if user has tokens to claim
+                    const userProfileResponse = await fetch(window.location.origin + '/api/user/profile', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        }
+                    });
+                    
+                    if (userProfileResponse.ok) {
+                        const userData = await userProfileResponse.json();
+                        userWalletBalance = parseInt(userData.wallet) || 0;
+                        if (debugOutput) debugOutput.textContent += `\n💰 User wallet balance: ${userWalletBalance} tokens`;
+                        
+                        if (userWalletBalance <= 0) {
+                            if (debugOutput) debugOutput.textContent += '\n❌ No tokens to claim';
+                            throw new Error("You don't have any tokens to claim. Complete courses to earn tokens first.");
+                        }
+                    } else {
+                        if (debugOutput) debugOutput.textContent += `\n⚠️ Could not verify wallet balance: ${userProfileResponse.status}`;
+                    }
+                } catch (balanceError) {
+                    if (debugOutput) debugOutput.textContent += `\n⚠️ Error checking balance: ${balanceError.message}`;
+                    // Continue anyway, the server will validate
+                }
+                
+                // First check if the Aptos client is initialized
+                if (debugOutput) debugOutput.textContent += '\n🔄 Checking Aptos client status...';
+                try {
+                    const aptosStatusResponse = await fetch(window.location.origin + '/api/test-aptos-client', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Cache-Control': 'no-cache'
+                        }
+                    });
+                    
+                    if (aptosStatusResponse.ok) {
+                        const statusData = await aptosStatusResponse.json();
+                        if (!statusData.clientInitialized) {
+                            const errorMsg = statusData.error || "Aptos client not initialized on the server. Please try again later.";
+                            if (debugOutput) debugOutput.textContent += `\n❌ ${errorMsg}`;
+                            throw new Error(errorMsg);
+                        } else {
+                            if (debugOutput) debugOutput.textContent += '\n✅ Aptos client is properly initialized';
+                        }
+                    }
+                } catch (statusError) {
+                    // If endpoint doesn't exist, just log and continue
+                    if (debugOutput) debugOutput.textContent += `\n⚠️ Could not check Aptos client status: ${statusError.message}`;
+                }
+                
+                // Create the API URL
+                const apiUrl = window.location.origin + '/api/reward-user';
+                if (debugOutput) debugOutput.textContent += `\n📡 API URL: ${apiUrl}`;
+                
+                // Prepare the request
+                const requestData = {
+                    wallet: walletAddress
+                };
+                if (debugOutput) debugOutput.textContent += `\n📋 Request data: ${JSON.stringify(requestData)}`;
+                
+                // Make the API call
+                if (debugOutput) debugOutput.textContent += '\n📡 Sending claim request to server...';
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                        'Cache-Control': 'no-cache'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                // Log response details
+                if (debugOutput) {
+                    debugOutput.textContent += `\n📡 Response status: ${response.status} ${response.statusText}`;
+                    debugOutput.textContent += '\n📡 Response headers:';
+                    response.headers.forEach((value, key) => {
+                        debugOutput.textContent += `\n  ${key}: ${value}`;
+                    });
+                }
+
+                // Handle 404 errors specifically
+                if (response.status === 404) {
+                    if (debugOutput) debugOutput.textContent += '\n❌ API endpoint not found (404)';
+                    throw new Error('API endpoint not found. The reward-user endpoint may not be properly configured on the server.');
+                }
+
+                // Clone response before reading it
+                const clonedResponse = response.clone();
+                
+                // Try to get response as text first
+                const responseText = await response.text();
+                if (debugOutput) {
+                    debugOutput.textContent += `\n📡 Response text (first 200 chars): ${responseText.substring(0, 200)}${responseText.length > 200 ? '...' : ''}`;
+                }
+                
+                let data;
+                try {
+                    // Parse the text as JSON if possible
+                    if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
+                        data = JSON.parse(responseText);
+                        if (debugOutput) debugOutput.textContent += `\n✅ Response parsed as JSON`;
+                    } else {
+                        if (debugOutput) debugOutput.textContent += `\n❌ Response is not valid JSON: ${responseText}`;
+                        throw new Error('Server returned non-JSON response');
+                    }
+                } catch (jsonError) {
+                    if (debugOutput) debugOutput.textContent += `\n❌ JSON parse error: ${jsonError.message}`;
+                    
+                    // Check if it looks like HTML
+                    if (responseText.includes('<!DOCTYPE html>') || responseText.includes('<html')) {
+                        if (debugOutput) {
+                            debugOutput.textContent += '\n❌ Server returned HTML instead of JSON (possibly a server error page)';
+                            
+                            // Extract title or error message from HTML if possible
+                            let errorTitle = "Unknown server error";
+                            let errorMatch = responseText.match(/<title>(.*?)<\/title>/i);
+                            if (errorMatch && errorMatch[1]) {
+                                errorTitle = errorMatch[1];
+                                debugOutput.textContent += `\n📄 Error page title: ${errorTitle}`;
+                            }
+                            
+                            // Try to extract error stack if it exists
+                            let stackMatch = responseText.match(/<pre>([\s\S]*?)<\/pre>/i);
+                            if (stackMatch && stackMatch[1]) {
+                                debugOutput.textContent += `\n🔍 Server error details: \n${stackMatch[1]}`;
+                            }
+                            
+                            // Check for "Cannot POST" message which indicates the endpoint doesn't exist
+                            if (responseText.includes('Cannot POST')) {
+                                throw new Error('API endpoint not found: The reward-user endpoint is not properly configured on the server. Check server logs and routes.');
+                            }
+                        }
+                        throw new Error(`Server error: ${responseText.includes('Internal Server Error') ? 'Internal Server Error (500)' : 'Received HTML instead of JSON response'}. Please check server logs.`);
+                    }
+                    
+                    throw new Error(`Failed to parse server response: ${jsonError.message}`);
+                }
+                
+                if (!response.ok) {
+                    // Handle specific error codes
+                    if (response.status === 403) {
+                        throw new Error("Access forbidden. You may not have permission to claim rewards.");
+                    } else if (response.status === 401) {
+                        throw new Error("Authentication failed. Please log in again.");
+                    } else if (response.status === 400) {
+                        throw new Error(data.message || "Invalid request. Please check your wallet address.");
+                    } else if (response.status === 404) {
+                        throw new Error("API endpoint not found. This feature may not be available.");
+                    } else if (response.status === 500) {
+                        throw new Error("Server error. Please try again later.");
+                    }
+                    
+                    throw new Error(data.message || "Failed to claim rewards");
+                }
+                
+                if (debugOutput) debugOutput.textContent += `\n✅ Claim successful! Transaction hash: ${data.txHash || 'No hash provided'}`;
+                
+                // Show success message with transaction link if available
+                let successMessage = data.message || "Rewards claimed successfully!";
+                
+                // Add transaction link if available
+                if (data.txHash) {
+                    const explorerUrl = `https://explorer.aptoslabs.com/txn/${data.txHash}?network=testnet`;
+                    successMessage += ` <a href="${explorerUrl}" target="_blank" class="alert-link">View transaction on explorer</a>`;
+                }
+                
+                // Add APT amount if available
+                if (data.aptAmount) {
+                    successMessage = `Claimed ${data.aptAmount} APT successfully! ` + successMessage;
+                }
+                
+                showSuccess(successMessage);
+                
+                // Update wallet balance display and transaction history
+                getUserData();
+                getTransactionHistory();
+                
+            } catch (error) {
+                console.error("❌ Claim rewards error:", error);
+                if (debugOutput) debugOutput.textContent += `\n❌ Error: ${error.message}`;
+                
+                // Show user-friendly error message
+                claimError.textContent = error.message;
+                claimError.style.display = 'block';
+            } finally {
+                // Reset button state
+                claimButton.disabled = false;
+                claimButton.textContent = originalButtonText;
+            }
+        }
+        
+        // Render transaction list
+        function renderTransactions() {
+            if (transactions.length === 0) {
+                noTransactions.style.display = 'block';
+                transactionList.style.display = 'none';
+                return;
+            }
+            
+            noTransactions.style.display = 'none';
+            transactionList.style.display = 'block';
+            transactionList.innerHTML = '';
+            
+            transactions.forEach(tx => {
+                // Format date and time
+                const txDate = new Date(tx.timestamp);
+                const date = txDate.toLocaleDateString();
+                const time = txDate.toLocaleTimeString();
+                
+                // Create transaction element
+                const txElement = document.createElement('div');
+                txElement.className = 'transaction-item';
+                txElement.innerHTML = `
+                    <div>
+                        <div class="mb-1">
+                            <span class="transaction-type ${tx.type}">${tx.type}</span>
+                            <span class="ms-2 text-muted">${date} ${time}</span>
+                        </div>
+                        <div class="transaction-hash">
+                            <a href="https://explorer.aptoslabs.com/txn/${tx.hash}?network=testnet" target="_blank">
+                                ${tx.hash.substring(0, 8)}...${tx.hash.substring(tx.hash.length - 8)}
+                                <i class="fas fa-external-link-alt ms-1 small"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="transaction-amount">+${tx.amount} APT</div>
+                `;
+                
+                transactionList.appendChild(txElement);
+            });
+        }
+        
+        // Get transaction history
+        async function getTransactionHistory() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    console.log("❌ No auth token found");
+                    return;
+                }
+                
+                console.log("🔄 Fetching transaction history from /api/user/transactions");
+                const txResponse = await fetch(window.location.origin + '/api/user/transactions', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log("📡 Transaction history response status:", txResponse.status);
+                
+                if (txResponse.ok) {
+                    const txData = await txResponse.json();
+                    console.log("📡 Transaction response data:", txData);
+                    
+                    if (txData.transactions && txData.transactions.length > 0) {
+                        transactions = txData.transactions;
+                        console.log("✅ Transaction history received:", transactions.length, "transactions");
+                        renderTransactions();
+                    } else {
+                        console.log("ℹ️ No transactions found");
+                    }
+                } else {
+                    const errorText = await txResponse.text();
+                    console.log("⚠️ Failed to fetch transactions:", txResponse.status, errorText);
+                }
+            } catch (error) {
+                console.error("❌ Error fetching transaction history:", error);
+            }
+        }
+        
+        // Update UI for connected wallet
+        function updateUIForConnectedWallet() {
+            console.log("🔄 Updating UI for connected wallet");
+            walletNotConnected.style.display = 'none';
+            walletConnected.style.display = 'flex';
+            
+            // Format wallet address for display
+            const shortAddress = wallet.substring(0, 6) + '...' + wallet.substring(wallet.length - 4);
+            walletAddress.innerHTML = `
+                ${wallet}
+                <div class="mt-1">
+                    <a href="https://explorer.aptoslabs.com/account/${wallet}?network=testnet" target="_blank" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-external-link-alt me-1"></i>View on Explorer
+                    </a>
+                </div>
+            `;
+        }
+        
+        // Show error message
+        function showError(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.role = 'alert';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.insertBefore(alertDiv, document.body.firstChild);
+            setTimeout(() => alertDiv.remove(), 5000);
+        }
+        
+        // Show success message
+        function showSuccess(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show';
+            alertDiv.role = 'alert';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.insertBefore(alertDiv, document.body.firstChild);
+            setTimeout(() => alertDiv.remove(), 5000);
+        }
+    </script>
+</body>
+</html> 
