@@ -143,6 +143,20 @@ The platform includes a comprehensive admin panel for platform management with t
 
 ![image](https://github.com/user-attachments/assets/c8d153f4-d8d4-41ea-bc69-79b2464670f3)
 
+#### 7. AI-Powered Assistance
+- **Interactive Chatbot**
+  - Real-time assistance on platform features and blockchain concepts
+  - Personalized responses based on user's learning progress and token balance
+  - Provides instant answers about earning tokens, course information, and technical support
+  - Accessible from all pages through a floating chat interface
+
+- **AI Call Assistant**
+  - Voice-based assistance for more complex inquiries
+  - Connects users with an AI assistant capable of explaining blockchain concepts
+  - Helps troubleshoot platform issues in real-time
+  - Available through the "Call Assistance" navigation link
+
+![AI Assistance](https://via.placeholder.com/600x300?text=AI+Assistance)
 
 ### Architecture & Implementation
 
