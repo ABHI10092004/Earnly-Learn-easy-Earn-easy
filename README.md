@@ -150,13 +150,15 @@ The platform includes a comprehensive admin panel for platform management with t
   - Provides instant answers about earning tokens, course information, and technical support
   - Accessible from all pages through a floating chat interface
 
+![image](https://github.com/user-attachments/assets/e5f44671-7142-4d13-a18b-33513d15c4ed)
+
 - **AI Call Assistant**
   - Voice-based assistance for more complex inquiries
   - Connects users with an AI assistant capable of explaining blockchain concepts
   - Helps troubleshoot platform issues in real-time
   - Available through the "Call Assistance" navigation link
 
-![AI Assistance](https://via.placeholder.com/600x300?text=AI+Assistance)
+![image](https://github.com/user-attachments/assets/67d42bef-e4a3-4de1-90bd-ad1e80176902)
 
 ### Architecture & Implementation
 
